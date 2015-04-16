@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class MyGdxGame extends ApplicationAdapter {
+    private float elapsedTime = 0;
 	SpriteBatch batch;
 	Texture img;
 	
@@ -20,8 +21,11 @@ public class MyGdxGame extends ApplicationAdapter {
 	public void render () {
 		Gdx.gl.glClearColor(1, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        elapsedTime += Gdx.graphics.getDeltaTime();
+
 		batch.begin();
-		batch.draw(img, 0, 0);
+		batch.draw(img, (elapsedTime * 300) % 200, 0);
 		batch.end();
 	}
 }
