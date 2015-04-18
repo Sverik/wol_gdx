@@ -4,6 +4,7 @@ import com.badlogic.gdx.Screen;
 
 import com.po.conbanned.controller.AttackerController;
 import com.po.conbanned.controller.BobController;
+import com.po.conbanned.controller.HoverController;
 import com.po.conbanned.model.World;
 import com.po.conbanned.view.WorldRenderer;
 
@@ -18,6 +19,7 @@ public class GameScreen implements Screen, InputProcessor {
     private WorldRenderer 	renderer;
     private BobController controller;
     private AttackerController attackerController;
+    private HoverController landmineController;
 
     private int width, height;
 
@@ -27,6 +29,7 @@ public class GameScreen implements Screen, InputProcessor {
         renderer = new WorldRenderer(world);
         controller = new BobController(world);
         attackerController = new AttackerController(world);
+        landmineController = new HoverController(world, renderer);
         Gdx.input.setInputProcessor(this);
     }
 
@@ -109,6 +112,7 @@ public class GameScreen implements Screen, InputProcessor {
         if (x > width / 2 && y > height / 2) {
             controller.rightPressed();
         }
+        landmineController.hover(x, y);
         return true;
     }
 
@@ -120,13 +124,14 @@ public class GameScreen implements Screen, InputProcessor {
         if (x > width / 2 && y > height / 2) {
             controller.rightReleased();
         }
+        landmineController.place(x, y);
         return true;
     }
 
     @Override
     public boolean touchDragged(int x, int y, int pointer) {
-        // TODO Auto-generated method stub
-        return false;
+        landmineController.hover(x, y);
+        return true;
     }
 
     @Override

@@ -4,13 +4,23 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public class Attacker {
+    public static enum State {
+        ALIVE,
+        DEAD,
+        ;
+    }
     public static final float SIZE = 1.2f;
 
     Vector2 position = new Vector2();
     Vector2 velocity = new Vector2();
     Rectangle bounds = new Rectangle();
 
+    State state;
+
+    float spinningTimeLeft = 2;
+
     public Attacker(Vector2 pos) {
+        state = State.ALIVE;
         position = pos;
         bounds.x = position.x;
         bounds.y = position.y;
@@ -36,4 +46,19 @@ public class Attacker {
         return velocity;
     }
 
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public float getSpinningTimeLeft() {
+        return spinningTimeLeft;
+    }
+
+    public void subtractSpinningTime(float delta) {
+        this.spinningTimeLeft -= delta;
+    }
 }

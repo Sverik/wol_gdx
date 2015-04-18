@@ -11,9 +11,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.po.conbanned.model.Attacker;
 import com.po.conbanned.model.Block;
 import com.po.conbanned.model.Bob;
+import com.po.conbanned.model.Landmine;
 import com.po.conbanned.model.World;
 
 public class WorldRenderer {
@@ -58,7 +61,6 @@ public class WorldRenderer {
     private float ppuY;	// pixels per unit on the Y axis
 
     public void setSize (int w, int h) {
-        System.out.println("w:" + w + ", h:" + h);
         this.width = w;
         this.fieldWidth = width - TOOLBOX_WIDTH_PX;
         this.height = h;
@@ -111,12 +113,18 @@ public class WorldRenderer {
         spriteBatch.setProjectionMatrix(cam.combined);
         spriteBatch.begin();
         drawField();
+        drawLandmines();
         drawAttackers();
+        drawHover();
+/*
         drawBlocks();
         drawBob();
+*/
         spriteBatch.end();
+/*
         if (debug)
             drawDebug();
+*/
 
         drawToolbox();
 
@@ -135,15 +143,22 @@ public class WorldRenderer {
         }
     }
 
-/*
-	public void draw (Texture texture, float x, float y, float originX, float originY, float width, float height, float scaleX,
-		float scaleY, float rotation, int srcX, int srcY, int srcWidth, int srcHeight, boolean flipX, boolean flipY) {
- */
+    private void drawLandmines() {
+        for (Landmine mine : world.getLandmines()) {
+            spriteBatch.draw(this.mine, mine.getPosition().x, mine.getPosition().y, Landmine.SIZE, Landmine.SIZE);
+        }
+    }
+
     private void drawAttackers() {
         for (Attacker a : world.getAttackers()) {
-//            spriteBatch.draw(rev, a.getPosition().x, a.getPosition().y, Attacker.SIZE, Attacker.SIZE);
             spriteBatch.draw(rev, a.getPosition().x, a.getPosition().y, Attacker.SIZE / 2, Attacker.SIZE / 2, Attacker.SIZE, Attacker.SIZE, 1,
                     1, a.getVelocity().angle(), 0, 0, rev.getWidth(), rev.getHeight(), false, false);
+        }
+    }
+
+    private void drawHover() {
+        if (world.getHoverState() == World.HoverState.PLACING_LANDMINE) {
+            spriteBatch.draw(this.mine, world.getHover().x, world.getHover().y, Landmine.SIZE, Landmine.SIZE);
         }
     }
 
@@ -183,5 +198,13 @@ public class WorldRenderer {
         debugRenderer.setColor(new Color(0, 1, 0, 1));
         debugRenderer.rect(rect.x, rect.y, rect.width, rect.height);
         debugRenderer.end();
+    }
+
+    public Vector2 screenToTile(int sx, int sy, Vector2 target) {
+        Vector3 tc = cam.unproject(new Vector3(sx, sy, 0), 0, 0, fieldWidth, height);
+        tc.x = (float) Math.floor(tc.x);
+        tc.y = (float) Math.floor(tc.y);
+        target.set(tc.x, tc.y);
+        return target;
     }
 }
