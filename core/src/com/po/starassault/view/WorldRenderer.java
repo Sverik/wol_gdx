@@ -34,13 +34,17 @@ public class WorldRenderer {
     private TextureRegion bobIdleRight;
     private TextureRegion blockTexture;
     private TextureRegion bobFrame;
+    private TextureRegion bobJumpLeft;
+    private TextureRegion bobFallLeft;
+    private TextureRegion bobJumpRight;
+    private TextureRegion bobFallRight;
 
     /** Animations **/
     private Animation walkLeftAnimation;
     private Animation walkRightAnimation;
 
     private SpriteBatch spriteBatch;
-    private boolean debug = false;
+    private boolean debug = true;
     private int width;
     private int height;
     private float ppuX;	// pixels per unit on the X axis
@@ -67,6 +71,12 @@ public class WorldRenderer {
         bobIdleRight = new TextureRegion(bobIdleLeft);
         bobIdleRight.flip(true, false);
         blockTexture = atlas.findRegion("block");
+        bobJumpLeft = atlas.findRegion("bob-up");
+        bobJumpRight = new TextureRegion(bobJumpLeft);
+        bobJumpRight.flip(true, false);
+        bobFallLeft = atlas.findRegion("bob-down");
+        bobFallRight = new TextureRegion(bobFallLeft);
+        bobFallRight.flip(true, false);
         TextureRegion[] walkLeftFrames = new TextureRegion[5];
         for (int i = 0; i < 5; i++) {
             walkLeftFrames[i] = atlas.findRegion("bob-0" + (i + 2));
@@ -102,6 +112,12 @@ public class WorldRenderer {
         bobFrame = bob.isFacingLeft() ? bobIdleLeft : bobIdleRight;
         if(bob.getState().equals(Bob.State.WALKING)) {
             bobFrame = bob.isFacingLeft() ? walkLeftAnimation.getKeyFrame(bob.getStateTime(), true) : walkRightAnimation.getKeyFrame(bob.getStateTime(), true);
+        } else if (bob.getState().equals(Bob.State.JUMPING)) {
+            if (bob.getVelocity().y > 0) {
+                bobFrame = bob.isFacingLeft() ? bobJumpLeft : bobJumpRight;
+            } else {
+                bobFrame = bob.isFacingLeft() ? bobFallLeft : bobFallRight;
+            }
         }
         spriteBatch.draw(bobFrame, bob.getPosition().x * ppuX, bob.getPosition().y * ppuY, Bob.SIZE * ppuX, Bob.SIZE * ppuY);
     }

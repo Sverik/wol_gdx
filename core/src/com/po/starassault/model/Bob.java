@@ -31,6 +31,10 @@ public class Bob {
         return position;
     }
 
+    public void setPosition(Vector2 position) {
+        this.position = position;
+    }
+
     public Vector2 getVelocity() {
         return velocity;
     }

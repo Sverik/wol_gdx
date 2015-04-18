@@ -2,21 +2,20 @@ package com.po.starassault.screens;
 
 import com.badlogic.gdx.Screen;
 
-import com.po.starassault.controller.WorldController;
+import com.po.starassault.controller.BobController;
 import com.po.starassault.model.World;
 import com.po.starassault.view.WorldRenderer;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 
 public class GameScreen implements Screen, InputProcessor {
 
     private World 			world;
     private WorldRenderer 	renderer;
-    private WorldController	controller;
+    private BobController controller;
 
     private int width, height;
 
@@ -24,7 +23,7 @@ public class GameScreen implements Screen, InputProcessor {
     public void show() {
         world = new World();
         renderer = new WorldRenderer(world);
-        controller = new WorldController(world);
+        controller = new BobController(world);
         Gdx.input.setInputProcessor(this);
     }
 
