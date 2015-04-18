@@ -33,6 +33,8 @@ public class Bob {
 
     public void setPosition(Vector2 position) {
         this.position = position;
+        this.bounds.setX(position.x);
+        this.bounds.setY(position.y);
     }
 
     public Vector2 getVelocity() {
@@ -70,5 +72,7 @@ public class Bob {
     public void update(float delta) {
         stateTime += delta;
         position.add(velocity.cpy().scl(delta));
+        this.bounds.setX(position.x);
+        this.bounds.setY(position.y);
     }
 }
