@@ -11,18 +11,17 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
+import com.po.conbanned.model.Attacker;
 import com.po.conbanned.model.Block;
 import com.po.conbanned.model.Bob;
 import com.po.conbanned.model.World;
 
 public class WorldRenderer {
 
-    private static final float GRASS_TILE_WIDTH = 1f;
+    private static final float GRASS_TILE_WIDTH = 5f;
 
     private static final float RUNNING_FRAME_DURATION = 0.06f;
 
-    private static final float CAMERA_GRID_WIDTH = 10f;
-    private static final float CAMERA_GRID_HEIGHT = 7f;
     private static final int TOOLBOX_WIDTH_PX = 50;
     private World world;
     private OrthographicCamera cam;
@@ -34,6 +33,8 @@ public class WorldRenderer {
 
     /** Textures **/
     private Texture grass;
+    private Texture rev;
+    private Texture mine;
 
     private TextureRegion bobIdleLeft;
     private TextureRegion bobIdleRight;
@@ -61,14 +62,14 @@ public class WorldRenderer {
         this.width = w;
         this.fieldWidth = width - TOOLBOX_WIDTH_PX;
         this.height = h;
-        ppuX = (float) fieldWidth / CAMERA_GRID_WIDTH;
-        ppuY = (float) height / CAMERA_GRID_HEIGHT;
+        ppuX = (float) fieldWidth / World.GRID_WIDTH;
+        ppuY = (float) height / World.GRID_HEIGHT;
     }
 
     public WorldRenderer(World world) {
         this.world = world;
-        this.cam = new OrthographicCamera(CAMERA_GRID_WIDTH, CAMERA_GRID_HEIGHT);
-        this.cam.position.set(CAMERA_GRID_WIDTH / 2f, CAMERA_GRID_HEIGHT / 2f, 0);
+        this.cam = new OrthographicCamera(World.GRID_WIDTH, World.GRID_HEIGHT);
+        this.cam.position.set(World.GRID_WIDTH / 2f, World.GRID_HEIGHT / 2f, 0);
         this.cam.update();
         spriteBatch = new SpriteBatch();
         loadTextures();
@@ -76,6 +77,8 @@ public class WorldRenderer {
 
     private void loadTextures() {
         grass = new Texture(Gdx.files.internal("images/grass.png"));
+        rev = new Texture(Gdx.files.internal("images/rev-8px.png"));
+        mine = new Texture(Gdx.files.internal("images/mine-8px.png"));
 
         TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("images/textures/textures.pack"));
         bobIdleLeft = atlas.findRegion("bob-01");
@@ -104,25 +107,43 @@ public class WorldRenderer {
     }
 
     public void render() {
+        Gdx.gl.glViewport(0, 0, fieldWidth, height);
         spriteBatch.setProjectionMatrix(cam.combined);
         spriteBatch.begin();
         drawField();
+        drawAttackers();
         drawBlocks();
         drawBob();
-/*
-        drawToolbox();
- */
-
         spriteBatch.end();
         if (debug)
             drawDebug();
+
+        drawToolbox();
+
+    }
+
+    private void drawToolbox() {
+        Gdx.gl.glViewport(fieldWidth, 0, width-fieldWidth, height);
+
     }
 
     private void drawField() {
-        for (float x = 0 ; x <= CAMERA_GRID_WIDTH; x+= 1 ) {
-            for (float y = 0 ; y <= CAMERA_GRID_HEIGHT; y+= 1 ) {
-                spriteBatch.draw(grass, x, y, 1, 1);
+        for (float x = 0 ; x <= World.GRID_WIDTH; x+= GRASS_TILE_WIDTH ) {
+            for (float y = 0 ; y <= World.GRID_HEIGHT; y+= GRASS_TILE_WIDTH ) {
+                spriteBatch.draw(grass, x, y, GRASS_TILE_WIDTH, GRASS_TILE_WIDTH);
             }
+        }
+    }
+
+/*
+	public void draw (Texture texture, float x, float y, float originX, float originY, float width, float height, float scaleX,
+		float scaleY, float rotation, int srcX, int srcY, int srcWidth, int srcHeight, boolean flipX, boolean flipY) {
+ */
+    private void drawAttackers() {
+        for (Attacker a : world.getAttackers()) {
+//            spriteBatch.draw(rev, a.getPosition().x, a.getPosition().y, Attacker.SIZE, Attacker.SIZE);
+            spriteBatch.draw(rev, a.getPosition().x, a.getPosition().y, Attacker.SIZE / 2, Attacker.SIZE / 2, Attacker.SIZE, Attacker.SIZE, 1,
+                    1, a.getVelocity().angle(), 0, 0, rev.getWidth(), rev.getHeight(), false, false);
         }
     }
 
@@ -144,7 +165,7 @@ public class WorldRenderer {
                 bobFrame = bob.isFacingLeft() ? bobFallLeft : bobFallRight;
             }
         }
-        spriteBatch.draw(bobFrame, bob.getPosition().x, bob.getPosition().y, Bob.SIZE, Bob.SIZE);
+        spriteBatch.draw(rev, bob.getPosition().x, bob.getPosition().y, Bob.SIZE, Bob.SIZE);
     }
 
     private void drawDebug() {

@@ -2,6 +2,7 @@ package com.po.conbanned.screens;
 
 import com.badlogic.gdx.Screen;
 
+import com.po.conbanned.controller.AttackerController;
 import com.po.conbanned.controller.BobController;
 import com.po.conbanned.model.World;
 import com.po.conbanned.view.WorldRenderer;
@@ -16,6 +17,7 @@ public class GameScreen implements Screen, InputProcessor {
     private World 			world;
     private WorldRenderer 	renderer;
     private BobController controller;
+    private AttackerController attackerController;
 
     private int width, height;
 
@@ -24,6 +26,7 @@ public class GameScreen implements Screen, InputProcessor {
         world = new World();
         renderer = new WorldRenderer(world);
         controller = new BobController(world);
+        attackerController = new AttackerController(world);
         Gdx.input.setInputProcessor(this);
     }
 
@@ -33,6 +36,7 @@ public class GameScreen implements Screen, InputProcessor {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         controller.update(delta);
+        attackerController.update(delta);
         renderer.render();
     }
 
