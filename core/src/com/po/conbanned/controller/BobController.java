@@ -1,7 +1,7 @@
-package com.po.starassault.controller;
+package com.po.conbanned.controller;
 
-import com.po.starassault.model.Bob;
-import com.po.starassault.model.World;
+import com.po.conbanned.model.Bob;
+import com.po.conbanned.model.World;
 
 import java.util.HashMap;
 import java.util.Map;

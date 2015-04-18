@@ -1,13 +1,12 @@
-package com.mygdx.game.desktop;
+package com.po.conbanned.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.mygdx.game.MyGdxGame;
-import com.po.starassault.StarAssault;
+import com.po.conbanned.ConBanned;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		new LwjglApplication(new StarAssault(), config);
+		new LwjglApplication(new ConBanned(), config);
 	}
 }

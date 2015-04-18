@@ -1,4 +1,4 @@
-package com.po.starassault.model;
+package com.po.conbanned.model;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;

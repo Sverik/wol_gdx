@@ -1,9 +1,9 @@
-package com.mygdx.game.client;
+package com.po.conbanned.client;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import com.mygdx.game.MyGdxGame;
+import com.po.conbanned.MyGdxGame;
 
 public class HtmlLauncher extends GwtApplication {
 

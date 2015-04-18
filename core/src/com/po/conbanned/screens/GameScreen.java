@@ -1,10 +1,10 @@
-package com.po.starassault.screens;
+package com.po.conbanned.screens;
 
 import com.badlogic.gdx.Screen;
 
-import com.po.starassault.controller.BobController;
-import com.po.starassault.model.World;
-import com.po.starassault.view.WorldRenderer;
+import com.po.conbanned.controller.BobController;
+import com.po.conbanned.model.World;
+import com.po.conbanned.view.WorldRenderer;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;

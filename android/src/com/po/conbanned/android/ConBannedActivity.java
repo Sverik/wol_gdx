@@ -1,13 +1,12 @@
-package com.mygdx.game.android;
+package com.po.conbanned.android;
 
 import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.mygdx.game.MyGdxGame;
-import com.po.starassault.StarAssault;
+import com.po.conbanned.ConBanned;
 
-public class StarAssaultActivity extends AndroidApplication {
+public class ConBannedActivity extends AndroidApplication {
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -16,7 +15,6 @@ public class StarAssaultActivity extends AndroidApplication {
         config.useCompass = false;
         config.useWakelock = true;
         config.useGLSurfaceView20API18 = true;
-        initialize(new StarAssault(), config);
-//		initialize(new MyGdxGame(), config);
+        initialize(new ConBanned(), config);
 	}
 }
