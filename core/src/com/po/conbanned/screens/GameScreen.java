@@ -2,6 +2,7 @@ package com.po.conbanned.screens;
 
 import com.badlogic.gdx.Screen;
 
+import com.po.conbanned.ConBanned;
 import com.po.conbanned.controller.AttackerController;
 import com.po.conbanned.controller.BobController;
 import com.po.conbanned.controller.HoverController;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.graphics.GL20;
 
 public class GameScreen implements Screen, InputProcessor {
 
+    private ConBanned game;
     private World 			world;
     private WorldRenderer 	renderer;
     private BobController controller;
@@ -22,6 +24,10 @@ public class GameScreen implements Screen, InputProcessor {
     private HoverController landmineController;
 
     private int width, height;
+
+    public GameScreen(ConBanned conBanned) {
+        this.game = conBanned;
+    }
 
     @Override
     public void show() {
@@ -39,7 +45,10 @@ public class GameScreen implements Screen, InputProcessor {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         controller.update(delta);
-        attackerController.update(delta);
+        boolean running = attackerController.update(delta);
+        if (! running) {
+            game.setScreen(new GameOverScreen(game, world.killCount));
+        }
         renderer.render();
     }
 

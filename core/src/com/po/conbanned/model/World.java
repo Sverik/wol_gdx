@@ -18,6 +18,7 @@ public class World {
 
     public static final int GRID_WIDTH = 64;
     public static final int GRID_HEIGHT = 48;
+    public static final int MAX_HQ_HEALTH = 20;
 
     /**
      * The blocks making up the world *
@@ -38,6 +39,10 @@ public class World {
     Object[][] grid = new Object[GRID_WIDTH][GRID_HEIGHT];
 
     public final Rectangle targetHouse = new Rectangle(GRID_WIDTH / 2 - 3 , GRID_HEIGHT / 2 - 3 , 6 , 6);
+
+    public int hqHealth = MAX_HQ_HEALTH;
+
+    public int killCount = 0;
 
     public World() {
         createDemoWorld();
@@ -80,12 +85,16 @@ public class World {
     public boolean canPlaceLandmineToCurrentHover() {
         int gx = (int) hover.x;
         int gy = (int) hover.y;
-        for (int xo = 0 ; xo < Landmine.SIZE ; xo++) {
-            for (int yo = 0 ; yo < Landmine.SIZE ; yo++) {
-                if (grid[gx + xo][gy + yo] != null) {
-                    return false;
+        try {
+            for (int xo = 0; xo < Landmine.SIZE; xo++) {
+                for (int yo = 0; yo < Landmine.SIZE; yo++) {
+                    if (grid[gx + xo][gy + yo] != null) {
+                        return false;
+                    }
                 }
             }
+        } catch (ArrayIndexOutOfBoundsException aioobe) {
+            return false;
         }
         return true;
     }

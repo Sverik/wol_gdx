@@ -9,26 +9,36 @@ import com.sun.org.apache.bcel.internal.generic.LAND;
 import java.util.Iterator;
 
 public class AttackerController {
-    private static final int MAX_ATTACKERS = 50;
-    private static final float MAX_SPEED = 2f;
+    private static final int MAX_ATTACKERS = 250;
+    private static final float MAX_SPEED = 6f;
 
     private static final float MAX_DISTANCE = (float) Math.sqrt(Math.pow(World.GRID_WIDTH / 2, 2) + Math.pow(World.GRID_HEIGHT / 2, 2));
 
     World world;
+    float time = 0;
 
     public AttackerController(World world) {
         this.world = world;
     }
 
     /** The main update method **/
-    public void update(float delta) {
+    public boolean update(float delta) {
+        if (world.hqHealth <= 0) {
+            return false;
+        }
+
+        time += delta;
+
         // add attackers, if needed
-        if (world.getAttackers().size() < MAX_ATTACKERS && Math.random() < 0.1) {
+        int maxAttackers = (int) (time / 300 * MAX_ATTACKERS + 5);
+        maxAttackers = Math.min(maxAttackers, MAX_ATTACKERS);
+        if (world.getAttackers().size() < maxAttackers && Math.random() < 0.1) {
             newAttacker();
         }
 
         moveAttackers(delta);
 
+        return true;
     }
 
     private void newAttacker() {
@@ -38,7 +48,9 @@ public class AttackerController {
         world.targetHouse.getCenter(a.getVelocity());
         a.getVelocity().sub(pos);
         a.getVelocity().nor();
-        a.getVelocity().scl(MAX_SPEED);
+        float speed = time / 180 * MAX_SPEED + 1f;
+        speed = Math.min(speed, MAX_SPEED);
+        a.getVelocity().scl(speed);
         world.getAttackers().add(a);
     }
 
@@ -49,6 +61,7 @@ public class AttackerController {
             // remove?
             if (a.getBounds().overlaps(world.targetHouse)) {
                 attIter.remove();
+                world.hqHealth--;
                 continue;
             }
 
@@ -89,6 +102,7 @@ public class AttackerController {
                     attacker.getBounds().getCenter(attackerCenter);
                     if (attackerCenter.dst(closestCenter) <= Landmine.BLAST_RADIUS) {
                         attacker.setState(Attacker.State.DEAD);
+                        world.killCount++;
                     }
                 }
                 world.remove(closest);

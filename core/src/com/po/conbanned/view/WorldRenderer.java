@@ -25,7 +25,7 @@ public class WorldRenderer {
 
     private static final float RUNNING_FRAME_DURATION = 0.06f;
 
-    private static final int TOOLBOX_WIDTH_PX = 50;
+    private static final int TOOLBOX_WIDTH_PX = 0;
 
     private static final Color HOVER_COLOR = new Color(1f, 1f, 1f, 0.7f);
     private static final Color HOVER_NP_COLOR = new Color(1f, 1f, 1f, 0.2f);
@@ -128,6 +128,8 @@ public class WorldRenderer {
         drawBob();
 */
         spriteBatch.end();
+
+        drawHqHealth();
 /*
         if (debug)
             drawDebug();
@@ -211,6 +213,20 @@ public class WorldRenderer {
             }
         }
         spriteBatch.draw(rev, bob.getPosition().x, bob.getPosition().y, Bob.SIZE, Bob.SIZE);
+    }
+
+    private void drawHqHealth() {
+        debugRenderer.setProjectionMatrix(cam.combined);
+        debugRenderer.begin(ShapeType.Filled);
+        float x = world.targetHouse.x + 1f;
+        float y = world.targetHouse.y - 0.3f;
+        float height = 1f;
+        float fullWidth = world.targetHouse.width - 2f;
+        debugRenderer.setColor(new Color(1, 0, 0, 1));
+        debugRenderer.rect(x, y, fullWidth, height);
+        debugRenderer.setColor(new Color(0, 1, 0, 1));
+        debugRenderer.rect(x, y, fullWidth * world.hqHealth / world.MAX_HQ_HEALTH, height);
+        debugRenderer.end();
     }
 
     private void drawDebug() {
