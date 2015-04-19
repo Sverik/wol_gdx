@@ -26,6 +26,10 @@ public class WorldRenderer {
     private static final float RUNNING_FRAME_DURATION = 0.06f;
 
     private static final int TOOLBOX_WIDTH_PX = 50;
+
+    private static final Color HOVER_COLOR = new Color(1f, 1f, 1f, 0.7f);
+    private static final Color HOVER_NP_COLOR = new Color(1f, 1f, 1f, 0.2f);
+
     private World world;
     private OrthographicCamera cam;
 
@@ -38,6 +42,7 @@ public class WorldRenderer {
     private Texture grass;
     private Texture rev;
     private Texture mine;
+    private Texture hq;
 
     private TextureRegion bobIdleLeft;
     private TextureRegion bobIdleRight;
@@ -81,6 +86,7 @@ public class WorldRenderer {
         grass = new Texture(Gdx.files.internal("images/grass.png"));
         rev = new Texture(Gdx.files.internal("images/rev-8px.png"));
         mine = new Texture(Gdx.files.internal("images/mine-8px.png"));
+        hq = new Texture(Gdx.files.internal("images/hq-199px.png"));
 
         TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("images/textures/textures.pack"));
         bobIdleLeft = atlas.findRegion("bob-01");
@@ -115,6 +121,7 @@ public class WorldRenderer {
         drawField();
         drawLandmines();
         drawAttackers();
+        drawHq();
         drawHover();
 /*
         drawBlocks();
@@ -150,15 +157,38 @@ public class WorldRenderer {
     }
 
     private void drawAttackers() {
+        Color color = new Color(1f, 1f, 1f, 1f);
         for (Attacker a : world.getAttackers()) {
+            if (a.getState() == Attacker.State.ALIVE) {
+                color.a = 1f;
+            } else if (a.getState() == Attacker.State.DEAD) {
+                color.a = Math.max(0f, a.getSpinningTimeLeft() / Attacker.MAX_SPINNING_TIME);
+            }
+            spriteBatch.setColor(color);
             spriteBatch.draw(rev, a.getPosition().x, a.getPosition().y, Attacker.SIZE / 2, Attacker.SIZE / 2, Attacker.SIZE, Attacker.SIZE, 1,
                     1, a.getVelocity().angle(), 0, 0, rev.getWidth(), rev.getHeight(), false, false);
         }
+        color = new Color(1f, 1f, 1f, 1f);
+        spriteBatch.setColor(color);
+    }
+
+    private void drawHq() {
+        spriteBatch.draw(hq, world.targetHouse.x, world.targetHouse.y, world.targetHouse.width, world.targetHouse.height);
     }
 
     private void drawHover() {
-        if (world.getHoverState() == World.HoverState.PLACING_LANDMINE) {
-            spriteBatch.draw(this.mine, world.getHover().x, world.getHover().y, Landmine.SIZE, Landmine.SIZE);
+        Color hc = HOVER_NP_COLOR;
+        switch (world.getHoverState()) {
+            case NONE:
+                break;
+            case PLACING_LANDMINE:
+                hc = HOVER_COLOR;
+            case PLACING_LANDMINE_NP:
+                Color color = spriteBatch.getColor();
+                spriteBatch.setColor(hc);
+                spriteBatch.draw(this.mine, world.getHover().x, world.getHover().y, Landmine.SIZE, Landmine.SIZE);
+                spriteBatch.setColor(color);
+                break;
         }
     }
 

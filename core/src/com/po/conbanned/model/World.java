@@ -10,13 +10,14 @@ import java.util.LinkedList;
 public class World {
 
     public static enum HoverState {
+        PLACING_LANDMINE_NP,
         PLACING_LANDMINE,
         NONE,
         ;
     }
 
-    public static final int GRID_WIDTH = 32;
-    public static final int GRID_HEIGHT = 24;
+    public static final int GRID_WIDTH = 64;
+    public static final int GRID_HEIGHT = 48;
 
     /**
      * The blocks making up the world *
@@ -76,7 +77,23 @@ public class World {
         return landmines;
     }
 
-    public void add(Landmine landmine) {
+    public boolean canPlaceLandmineToCurrentHover() {
+        int gx = (int) hover.x;
+        int gy = (int) hover.y;
+        for (int xo = 0 ; xo < Landmine.SIZE ; xo++) {
+            for (int yo = 0 ; yo < Landmine.SIZE ; yo++) {
+                if (grid[gx + xo][gy + yo] != null) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean add(Landmine landmine) {
+        if (! canPlaceLandmineToCurrentHover()) {
+            return false;
+        }
         landmines.add(landmine);
         int gx = (int) landmine.getPosition().x;
         int gy = (int) landmine.getPosition().y;
@@ -85,6 +102,7 @@ public class World {
                 grid[gx + xo][gy + yo] = landmine;
             }
         }
+        return true;
     }
 
     public void remove(Landmine landmine) {
@@ -106,11 +124,14 @@ public class World {
     }
 
     private void createDemoWorld() {
+/*
         add(new Landmine(new Vector2(28,16)));
         add(new Landmine(new Vector2(30,15)));
         for (int x = 4 ; x < 31 ; x+=Landmine.SIZE) {
             add(new Landmine(new Vector2(x,11)));
         }
+
+*/
         bob = new Bob(new Vector2(7, 2));
 
         for (int i = 0; i < 10; i++) {

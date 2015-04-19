@@ -10,6 +10,7 @@ public class Attacker {
         ;
     }
     public static final float SIZE = 1.2f;
+    public static final float MAX_SPINNING_TIME = 2;
 
     Vector2 position = new Vector2();
     Vector2 velocity = new Vector2();
@@ -17,7 +18,7 @@ public class Attacker {
 
     State state;
 
-    float spinningTimeLeft = 2;
+    float spinningTimeLeft = MAX_SPINNING_TIME;
 
     public Attacker(Vector2 pos) {
         state = State.ALIVE;

@@ -9,8 +9,10 @@ import com.sun.org.apache.bcel.internal.generic.LAND;
 import java.util.Iterator;
 
 public class AttackerController {
-    private static final int MAX_ATTACKERS = 20;
+    private static final int MAX_ATTACKERS = 50;
     private static final float MAX_SPEED = 2f;
+
+    private static final float MAX_DISTANCE = (float) Math.sqrt(Math.pow(World.GRID_WIDTH / 2, 2) + Math.pow(World.GRID_HEIGHT / 2, 2));
 
     World world;
 
@@ -30,7 +32,8 @@ public class AttackerController {
     }
 
     private void newAttacker() {
-        Vector2 pos = new Vector2((float)Math.random() * World.GRID_WIDTH, (float)Math.random() * World.GRID_HEIGHT);
+        Vector2 pos = new Vector2(MAX_DISTANCE, 0);
+        pos.rotate((float) (Math.random() * 360f)).add(World.GRID_WIDTH / 2, World.GRID_HEIGHT / 2);
         Attacker a = new Attacker(pos);
         world.targetHouse.getCenter(a.getVelocity());
         a.getVelocity().sub(pos);
@@ -55,23 +58,40 @@ public class AttackerController {
             }
 
             // kaboom?
+            Vector2 aCenter = a.getBounds().getCenter(new Vector2());
             int gx = (int) a.getPosition().x;
             int gy = (int) a.getPosition().y;
-            Landmine mine = null;
+            Landmine closest = null;
+            Vector2 closestCenter = new Vector2();
             gridloop: for (int xo = 0 ; xo < Landmine.SIZE ; xo++) {
                 for (int yo = 0 ; yo < Landmine.SIZE ; yo++) {
                     Object o = world.getGrid(gx + xo,gy + yo);
                     if (o != null && o instanceof Landmine) {
-                        mine = (Landmine)o;
-                        break gridloop;
+                        Landmine curr = (Landmine)o;
+                        if (closest == null) {
+                            closest = curr;
+                            closestCenter = closest.getBounds().getCenter(closestCenter);
+                            continue;
+                        }
+                        Vector2 currentCenter = curr.getBounds().getCenter(new Vector2());
+                        if (aCenter.dst2(currentCenter) < aCenter.dst2(closestCenter)) {
+                            closest = curr;
+                            closestCenter = closest.getBounds().getCenter(closestCenter);
+                            continue;
+                        }
                     }
                 }
             }
-            if (mine != null) {
+            if (closest != null) {
                 // kaboom!
-                world.remove(mine);
-                a.setState(Attacker.State.DEAD);
-                continue;
+                Vector2 attackerCenter = new Vector2();
+                for (Attacker attacker : world.getAttackers()) {
+                    attacker.getBounds().getCenter(attackerCenter);
+                    if (attackerCenter.dst(closestCenter) <= Landmine.BLAST_RADIUS) {
+                        attacker.setState(Attacker.State.DEAD);
+                    }
+                }
+                world.remove(closest);
             }
             
             if (a.getState() == Attacker.State.ALIVE) {
