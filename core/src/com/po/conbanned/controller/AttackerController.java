@@ -9,7 +9,7 @@ import com.sun.org.apache.bcel.internal.generic.LAND;
 import java.util.Iterator;
 
 public class AttackerController {
-    private static final int MAX_ATTACKERS = 250;
+    private static final int MAX_ATTACKERS = 150;
     private static final float MAX_SPEED = 6f;
 
     private static final float MAX_DISTANCE = (float) Math.sqrt(Math.pow(World.GRID_WIDTH / 2, 2) + Math.pow(World.GRID_HEIGHT / 2, 2));
@@ -30,7 +30,7 @@ public class AttackerController {
         time += delta;
 
         // add attackers, if needed
-        int maxAttackers = (int) (time / 300 * MAX_ATTACKERS + 5);
+        int maxAttackers = (int) (time / 500 * MAX_ATTACKERS + 5);
         maxAttackers = Math.min(maxAttackers, MAX_ATTACKERS);
         if (world.getAttackers().size() < maxAttackers && Math.random() < 0.1) {
             newAttacker();

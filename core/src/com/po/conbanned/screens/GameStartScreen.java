@@ -110,10 +110,11 @@ public class GameStartScreen implements Screen, InputProcessor {
                 "Protesters are coming and their plans are bigger than just having tea with you.\n" +
                 "You have a huge stockpile of landmines,\n" +
                 "and regardless of the Anti-Personnel Mine Ban Convention that you as a president signed,\n" +
-                "it seems to be your last defense against the angry mob.\n\n" +
+                "it seems to be your last option for defending yourself against the angry mob.\n\n" +
                 "Landmines can be placed by clicking/tapping on the field.\n" +
                 "When " + World.MAX_HQ_HEALTH + " protesters manage to enter your palace,\n" +
-                "it will be all over."
+                "it will be all over.\n\n\n" +
+                "(Game made in 48 hours for Ludum Dare 32 competition.)"
                 ;
     }
 

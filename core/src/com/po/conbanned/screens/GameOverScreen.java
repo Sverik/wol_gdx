@@ -113,13 +113,15 @@ public class GameOverScreen implements Screen, InputProcessor {
         return killCount > 0 ?
                 "Your palace was overrun!\n" +
                 "Next stop, International Criminal Tribunal!\n" +
-                "Among other crimes, you are charged with using anti-personnel mines to fend off protesters.\n" +
+                "Among other crimes, you are charged with using\n" +
+                "anti-personnel mines to fend off protesters.\n" +
                 "Killing " + killCount + " of them\n" +
                 "does not make your case in court any better."
                 :
                 "Your palace was overrun!\n" +
                 "It looks like your days of ruling are over,\n" +
-                "but at least you did not resort to using landmines against your own people.\n" +
+                "but at least you did not resort to\n" +
+                "using landmines against your own people.\n\n" +
                 "Losing gracefully, that is the hardest thing."
                 ;
     }
