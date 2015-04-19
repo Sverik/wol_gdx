@@ -23,8 +23,6 @@ public class WorldRenderer {
 
     private static final float GRASS_TILE_WIDTH = 5f;
 
-    private static final float RUNNING_FRAME_DURATION = 0.06f;
-
     private static final int TOOLBOX_WIDTH_PX = 0;
 
     private static final Color HOVER_COLOR = new Color(1f, 1f, 1f, 0.7f);
@@ -44,33 +42,15 @@ public class WorldRenderer {
     private Texture mine;
     private Texture hq;
 
-    private TextureRegion bobIdleLeft;
-    private TextureRegion bobIdleRight;
-    private TextureRegion blockTexture;
-    private TextureRegion bobFrame;
-    private TextureRegion bobJumpLeft;
-    private TextureRegion bobFallLeft;
-    private TextureRegion bobJumpRight;
-    private TextureRegion bobFallRight;
-
-    /** Animations **/
-    private Animation walkLeftAnimation;
-    private Animation walkRightAnimation;
-
     private SpriteBatch spriteBatch;
-    private boolean debug = true;
     private int width;
     private int fieldWidth;
     private int height;
-    private float ppuX;	// pixels per unit on the X axis
-    private float ppuY;	// pixels per unit on the Y axis
 
     public void setSize (int w, int h) {
         this.width = w;
         this.fieldWidth = width - TOOLBOX_WIDTH_PX;
         this.height = h;
-        ppuX = (float) fieldWidth / World.GRID_WIDTH;
-        ppuY = (float) height / World.GRID_HEIGHT;
     }
 
     public WorldRenderer(World world) {
@@ -87,31 +67,6 @@ public class WorldRenderer {
         rev = new Texture(Gdx.files.internal("images/rev-8px.png"));
         mine = new Texture(Gdx.files.internal("images/mine-8px.png"));
         hq = new Texture(Gdx.files.internal("images/hq-199px.png"));
-
-        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("images/textures/textures.pack"));
-        bobIdleLeft = atlas.findRegion("bob-01");
-        bobIdleRight = new TextureRegion(bobIdleLeft);
-        bobIdleRight.flip(true, false);
-        blockTexture = atlas.findRegion("block");
-        bobJumpLeft = atlas.findRegion("bob-up");
-        bobJumpRight = new TextureRegion(bobJumpLeft);
-        bobJumpRight.flip(true, false);
-        bobFallLeft = atlas.findRegion("bob-down");
-        bobFallRight = new TextureRegion(bobFallLeft);
-        bobFallRight.flip(true, false);
-        TextureRegion[] walkLeftFrames = new TextureRegion[5];
-        for (int i = 0; i < 5; i++) {
-            walkLeftFrames[i] = atlas.findRegion("bob-0" + (i + 2));
-        }
-        walkLeftAnimation = new Animation(RUNNING_FRAME_DURATION, walkLeftFrames);
-
-        TextureRegion[] walkRightFrames = new TextureRegion[5];
-
-        for (int i = 0; i < 5; i++) {
-            walkRightFrames[i] = new TextureRegion(walkLeftFrames[i]);
-            walkRightFrames[i].flip(true, false);
-        }
-        walkRightAnimation = new Animation(RUNNING_FRAME_DURATION, walkRightFrames);
     }
 
     public void render() {
@@ -123,25 +78,9 @@ public class WorldRenderer {
         drawAttackers();
         drawHq();
         drawHover();
-/*
-        drawBlocks();
-        drawBob();
-*/
         spriteBatch.end();
 
         drawHqHealth();
-/*
-        if (debug)
-            drawDebug();
-*/
-
-        drawToolbox();
-
-    }
-
-    private void drawToolbox() {
-        Gdx.gl.glViewport(fieldWidth, 0, width-fieldWidth, height);
-
     }
 
     private void drawField() {
@@ -194,27 +133,6 @@ public class WorldRenderer {
         }
     }
 
-    private void drawBlocks() {
-        for (Block block : world.getBlocks()) {
-            spriteBatch.draw(blockTexture, block.getPosition().x, block.getPosition().y, Block.SIZE, Block.SIZE);
-        }
-    }
-
-    private void drawBob() {
-        Bob bob = world.getBob();
-        bobFrame = bob.isFacingLeft() ? bobIdleLeft : bobIdleRight;
-        if(bob.getState().equals(Bob.State.WALKING)) {
-            bobFrame = bob.isFacingLeft() ? walkLeftAnimation.getKeyFrame(bob.getStateTime(), true) : walkRightAnimation.getKeyFrame(bob.getStateTime(), true);
-        } else if (bob.getState().equals(Bob.State.JUMPING)) {
-            if (bob.getVelocity().y > 0) {
-                bobFrame = bob.isFacingLeft() ? bobJumpLeft : bobJumpRight;
-            } else {
-                bobFrame = bob.isFacingLeft() ? bobFallLeft : bobFallRight;
-            }
-        }
-        spriteBatch.draw(rev, bob.getPosition().x, bob.getPosition().y, Bob.SIZE, Bob.SIZE);
-    }
-
     private void drawHqHealth() {
         debugRenderer.setProjectionMatrix(cam.combined);
         debugRenderer.begin(ShapeType.Filled);
@@ -226,23 +144,6 @@ public class WorldRenderer {
         debugRenderer.rect(x, y, fullWidth, height);
         debugRenderer.setColor(new Color(0, 1, 0, 1));
         debugRenderer.rect(x, y, fullWidth * world.hqHealth / world.MAX_HQ_HEALTH, height);
-        debugRenderer.end();
-    }
-
-    private void drawDebug() {
-        // render blocks
-        debugRenderer.setProjectionMatrix(cam.combined);
-        debugRenderer.begin(ShapeType.Line);
-        for (Block block : world.getBlocks()) {
-            Rectangle rect = block.getBounds();
-            debugRenderer.setColor(new Color(1, 0, 0, 1));
-            debugRenderer.rect(rect.x, rect.y, rect.width, rect.height);
-        }
-        // render Bob
-        Bob bob = world.getBob();
-        Rectangle rect = bob.getBounds();
-        debugRenderer.setColor(new Color(0, 1, 0, 1));
-        debugRenderer.rect(rect.x, rect.y, rect.width, rect.height);
         debugRenderer.end();
     }
 
