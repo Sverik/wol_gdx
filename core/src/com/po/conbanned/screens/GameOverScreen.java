@@ -15,6 +15,7 @@ public class GameOverScreen implements Screen, InputProcessor {
     private SpriteBatch batch;
     private BitmapFont fontNormal = new BitmapFont();
     private BitmapFont fontToContinue = new BitmapFont();
+    private float fontScale = -1f;
     private int killCount;
 
     public GameOverScreen(ConBanned game, int killCount) {
@@ -82,6 +83,10 @@ public class GameOverScreen implements Screen, InputProcessor {
         Gdx.gl.glViewport(0, 0, width, height);
         batch.begin();
 
+        if (fontScale <= 0) {
+            findScale();
+        }
+
         fontNormal.drawMultiLine(batch, getText(), 20, height - 60);
 
         if (timer <= 0) {
@@ -91,12 +96,26 @@ public class GameOverScreen implements Screen, InputProcessor {
 
     }
 
+    private void findScale() {
+        String text = getText();
+        fontScale = 0.01f;
+        while (true) {
+            if (fontNormal.getMultiLineBounds(text).width > width - 40) {
+                break;
+            }
+            fontScale += 0.02f;
+            fontNormal.setScale(fontScale);
+        }
+
+    }
+
     private String getText() {
         return killCount > 0 ?
                 "Your palace was overrun!\n" +
                 "Next stop, International Criminal Tribunal!\n" +
                 "Among other crimes, you are charged with using anti-personnel mines to fend off protesters.\n" +
-                "Killing an additional " + killCount + " people does not make your case in court any better."
+                "Killing " + killCount + " of them\n" +
+                "does not make your case in court any better."
                 :
                 "Your palace was overrun!\n" +
                 "It looks like your days of ruling are over,\n" +

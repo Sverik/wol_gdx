@@ -14,12 +14,15 @@ public class GameStartScreen implements Screen, InputProcessor {
 
     private int width, height;
     private SpriteBatch batch;
-    private BitmapFont fontNormal = new BitmapFont();
-    private BitmapFont fontToContinue = new BitmapFont();
+    private BitmapFont fontNormal;
+    private BitmapFont fontToContinue;
+    private float fontScale = -1f;
 
     public GameStartScreen(ConBanned game) {
         this.game = game;
         batch = new SpriteBatch();
+        fontNormal = new BitmapFont();
+        fontToContinue = new BitmapFont();
     }
 
     @Override
@@ -77,10 +80,27 @@ public class GameStartScreen implements Screen, InputProcessor {
 
         batch.begin();
 
+        if (fontScale <= 0) {
+            findScale();
+        }
+
         fontNormal.drawMultiLine(batch, getText(), 20, height - 60);
 
         fontToContinue.draw(batch, "Click/Tap to start.", 20, 30);
         batch.end();
+
+    }
+
+    private void findScale() {
+        String text = getText();
+        fontScale = 0.01f;
+        while (true) {
+            if (fontNormal.getMultiLineBounds(text).width > width - 40) {
+                break;
+            }
+            fontScale += 0.02f;
+            fontNormal.setScale(fontScale);
+        }
 
     }
 
