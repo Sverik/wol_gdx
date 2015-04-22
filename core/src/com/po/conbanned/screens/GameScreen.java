@@ -4,6 +4,7 @@ import com.badlogic.gdx.Screen;
 
 import com.po.conbanned.ConBanned;
 import com.po.conbanned.controller.AttackerController;
+import com.po.conbanned.controller.DogController;
 import com.po.conbanned.controller.HoverController;
 import com.po.conbanned.model.World;
 import com.po.conbanned.view.WorldRenderer;
@@ -18,6 +19,7 @@ public class GameScreen implements Screen, InputProcessor {
     private ConBanned game;
     private World 			world;
     private WorldRenderer 	renderer;
+    private DogController   dogController;
     private AttackerController attackerController;
     private HoverController landmineController;
 
@@ -31,6 +33,7 @@ public class GameScreen implements Screen, InputProcessor {
     public void show() {
         world = new World();
         renderer = new WorldRenderer(world);
+        dogController = new DogController(world);
         attackerController = new AttackerController(world);
         landmineController = new HoverController(world, renderer);
         Gdx.input.setInputProcessor(this);
@@ -41,6 +44,7 @@ public class GameScreen implements Screen, InputProcessor {
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        dogController.update(delta);
         boolean running = attackerController.update(delta);
         if (! running) {
             game.setScreen(new GameOverScreen(game, world.killCount));

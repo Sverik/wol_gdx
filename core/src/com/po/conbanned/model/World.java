@@ -2,10 +2,12 @@ package com.po.conbanned.model;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Queue;
 
 public class World {
 
@@ -19,6 +21,9 @@ public class World {
     public static final int GRID_WIDTH = 64;
     public static final int GRID_HEIGHT = 48;
     public static final int MAX_HQ_HEALTH = 20;
+
+    Dog dog;
+    LinkedList<Vector3> dogTrace = new LinkedList<Vector3>();
 
     /**
      * The blocks making up the world *
@@ -56,6 +61,14 @@ public class World {
 
     public Bob getBob() {
         return bob;
+    }
+
+    public Dog getDog() {
+        return dog;
+    }
+
+    public LinkedList<Vector3> getDogTrace() {
+        return dogTrace;
     }
 
     /**
@@ -133,6 +146,9 @@ public class World {
     }
 
     private void createDemoWorld() {
+        dog = new Dog();
+        dog.getPosition().set(GRID_WIDTH / 2, GRID_HEIGHT / 2);
+        dog.getOrientation().set(2, 1);
 /*
         add(new Landmine(new Vector2(28,16)));
         add(new Landmine(new Vector2(30,15)));

@@ -4,18 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.po.conbanned.model.Attacker;
-import com.po.conbanned.model.Block;
-import com.po.conbanned.model.Bob;
+import com.po.conbanned.model.Dog;
 import com.po.conbanned.model.Landmine;
 import com.po.conbanned.model.World;
 
@@ -63,14 +58,17 @@ public class WorldRenderer {
     }
 
     private void loadTextures() {
+/*
         grass = new Texture(Gdx.files.internal("images/grass.png"));
         rev = new Texture(Gdx.files.internal("images/rev-8px.png"));
         mine = new Texture(Gdx.files.internal("images/mine-8px.png"));
         hq = new Texture(Gdx.files.internal("images/hq-199px.png"));
+*/
     }
 
     public void render() {
         Gdx.gl.glViewport(0, 0, fieldWidth, height);
+/*
         spriteBatch.setProjectionMatrix(cam.combined);
         spriteBatch.begin();
         drawField();
@@ -79,8 +77,8 @@ public class WorldRenderer {
         drawHq();
         drawHover();
         spriteBatch.end();
-
-        drawHqHealth();
+*/
+        drawDebug();
     }
 
     private void drawField() {
@@ -133,17 +131,38 @@ public class WorldRenderer {
         }
     }
 
-    private void drawHqHealth() {
+    private void drawDebug() {
         debugRenderer.setProjectionMatrix(cam.combined);
+
+        // Trace
         debugRenderer.begin(ShapeType.Filled);
-        float x = world.targetHouse.x + 1f;
-        float y = world.targetHouse.y - 0.3f;
-        float height = 1f;
-        float fullWidth = world.targetHouse.width - 2f;
+        for (Vector3 trace : world.getDogTrace()) {
+            debugRenderer.setColor(trace.z, 0, 0, 1f);
+            debugRenderer.circle(trace.x, trace.y, trace.z);
+        }
+        debugRenderer.end();
+
+        // Touch
+        debugRenderer.begin(ShapeType.Filled);
+        debugRenderer.setColor(new Color(0, (world.getHoverState() == World.HoverState.NONE ? 0.4f : 1f), 0, 1));
+        debugRenderer.circle(world.getHover().x, world.getHover().y, 0.5f);
+        debugRenderer.end();
+
+        // Dog
+        Dog dog = world.getDog();
+        float radius = 2f / 2;
+        debugRenderer.begin(ShapeType.Line);
         debugRenderer.setColor(new Color(1, 0, 0, 1));
+        debugRenderer.circle(dog.getPosition().x, dog.getPosition().y, radius, 12);
+        dog.getOrientation().nor().scl(radius);
+        debugRenderer.line(dog.getPosition(), new Vector2(dog.getPosition()).add(dog.getOrientation()));
+
+        /*
+        float fullWidth = world.targetHouse.width - 2f;
         debugRenderer.rect(x, y, fullWidth, height);
         debugRenderer.setColor(new Color(0, 1, 0, 1));
         debugRenderer.rect(x, y, fullWidth * world.hqHealth / world.MAX_HQ_HEALTH, height);
+        */
         debugRenderer.end();
     }
 
@@ -154,4 +173,5 @@ public class WorldRenderer {
         target.set(tc.x, tc.y);
         return target;
     }
+
 }

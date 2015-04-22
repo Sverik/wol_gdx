@@ -26,6 +26,9 @@ public class AttackerController {
         if (world.hqHealth <= 0) {
             return false;
         }
+        if (world.hqHealth > 0) {
+            return true;
+        }
 
         time += delta;
 

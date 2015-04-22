@@ -7,6 +7,6 @@ import com.po.conbanned.screens.GameStartScreen;
 public class ConBanned extends Game {
     @Override
     public void create() {
-        setScreen(new GameStartScreen(this));
+        setScreen(new GameScreen(this));
     }
 }
