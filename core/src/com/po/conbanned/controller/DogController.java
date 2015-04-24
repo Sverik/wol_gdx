@@ -51,16 +51,16 @@ public class DogController {
 //            System.out.println(desiredAngleDelta);
         float direction = Math.signum(desiredAngleDelta);
         float magnitude = Math.abs(desiredAngleDelta);
-        magnitude = Math.min(magnitude, delta * Dog.TURN_SPEED_DEG_PER_SEC);
+        magnitude = Math.min(magnitude, delta * runner.getTurnSpeedDegPerSec());
         float angleDelta = magnitude * direction;
 //            System.out.println(desiredAngleDelta + ", " + angleDelta);
         runner.getOrientation().rotate(-angleDelta);
 
         float distance = runner.getPosition().dst(target);
         // distance D_F_D...D_A_T -> S...0
-        float moveSpeed = Dog.MOVE_SPEED_UNIT_PER_SEC;
-        if (distance <= Dog.MOVE_SPEED_DECREASE_FROM_DISTANCE) {
-            moveSpeed = (distance - Dog.DESTINATION_ARRIVED_THRESHOLD) / (Dog.MOVE_SPEED_DECREASE_FROM_DISTANCE - Dog.DESTINATION_ARRIVED_THRESHOLD) * Dog.MOVE_SPEED_UNIT_PER_SEC;
+        float moveSpeed = runner.getMoveSpeedUnitPerSec();
+        if (distance <= runner.getMoveSpeedDecreaseFromDistance()) {
+            moveSpeed = (distance - runner.getDestinationArrivedThreshold()) / (runner.getMoveSpeedDecreaseFromDistance() - runner.getDestinationArrivedThreshold()) * runner.getMoveSpeedUnitPerSec();
             moveSpeed = Math.max(0, moveSpeed);
         }
         Vector2 directionVector = new Vector2(runner.getOrientation()).nor().scl(moveSpeed * delta);
