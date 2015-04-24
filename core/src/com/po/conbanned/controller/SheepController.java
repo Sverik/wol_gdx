@@ -28,9 +28,14 @@ public class SheepController {
                 sheep.getDesiredMovement().add(traceEffect);
             }
 
-            Vector2 target = new Vector2(sheep.getDesiredMovement()).add(sheep.getPosition());
-            target.rotate((float) Math.random() * 5f * delta);
-            DogController.moveTowardsTarget(sheep, target, delta);
+            if (sheep.getDesiredMovement().len2() > 0f) {
+                Vector2 target = new Vector2(sheep.getDesiredMovement()).add(sheep.getPosition());
+                target.rotate((float) Math.random() * 5f * delta);
+                DogController.moveTowardsTarget(sheep, target, delta);
+            } else {
+                // TODO: deceleration
+                sheep.getVelocity().set(0, 0);
+            }
         }
     }
 }

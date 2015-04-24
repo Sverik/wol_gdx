@@ -136,14 +136,14 @@ public class WorldRenderer {
         debugRenderer.setProjectionMatrix(cam.combined);
 
         // Trace
-/*
+/**/
         debugRenderer.begin(ShapeType.Filled);
         for (Vector3 trace : world.getDogTrace()) {
             debugRenderer.setColor(trace.z, 0, 0, 1f);
             debugRenderer.circle(trace.x, trace.y, trace.z);
         }
         debugRenderer.end();
-*/
+/**/
         
         // Sheep
         debugRenderer.begin(ShapeType.Line);

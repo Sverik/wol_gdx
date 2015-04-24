@@ -7,6 +7,10 @@ public interface Runner {
 
     Vector2 getOrientation();
 
+    Vector2 getVelocity();
+
+    float getAccelerationSpeedPerSec();
+
     float getTurnSpeedDegPerSec();
 
     float getMoveSpeedUnitPerSec();

@@ -35,6 +35,9 @@ public class DogController {
             while (world.getDogTrace().size() > TRACE_MAX_LENGTH) {
                 world.getDogTrace().removeFirst();
             }
+        } else {
+            // TODO: deceleration
+            world.getDog().getVelocity().set(0, 0);
         }
         Iterator<Vector3> traceIter = world.getDogTrace().iterator();
         while (traceIter.hasNext()) {
@@ -58,12 +61,21 @@ public class DogController {
 
         float distance = runner.getPosition().dst(target);
         // distance D_F_D...D_A_T -> S...0
-        float moveSpeed = runner.getMoveSpeedUnitPerSec();
+        float desiredMoveSpeed = runner.getMoveSpeedUnitPerSec();
         if (distance <= runner.getMoveSpeedDecreaseFromDistance()) {
-            moveSpeed = (distance - runner.getDestinationArrivedThreshold()) / (runner.getMoveSpeedDecreaseFromDistance() - runner.getDestinationArrivedThreshold()) * runner.getMoveSpeedUnitPerSec();
-            moveSpeed = Math.max(0, moveSpeed);
+            desiredMoveSpeed = (distance - runner.getDestinationArrivedThreshold()) / (runner.getMoveSpeedDecreaseFromDistance() - runner.getDestinationArrivedThreshold()) * runner.getMoveSpeedUnitPerSec();
+            desiredMoveSpeed = Math.max(0, desiredMoveSpeed);
         }
-        Vector2 directionVector = new Vector2(runner.getOrientation()).nor().scl(moveSpeed * delta);
-        runner.getPosition().add(directionVector);
+        // acceleration
+        float currentSpeed = runner.getVelocity().len();
+        if (desiredMoveSpeed > currentSpeed) {
+            currentSpeed = currentSpeed + runner.getAccelerationSpeedPerSec() * delta;
+        }
+        currentSpeed = Math.min(currentSpeed, runner.getMoveSpeedUnitPerSec());
+        if (runner instanceof Dog) {
+            System.out.println(currentSpeed + " -> " + desiredMoveSpeed);
+        }
+        runner.getVelocity().set( new Vector2(runner.getOrientation()).nor().scl(currentSpeed) );
+        runner.getPosition().add(runner.getVelocity().x * delta, runner.getVelocity().y * delta);
     }
 }
