@@ -2,9 +2,9 @@ package com.po.conbanned.model;
 
 import com.badlogic.gdx.math.Vector2;
 
-public class Dog implements Runner {
+public class Sheep implements Runner {
     public static final float TURN_SPEED_DEG_PER_SEC = 360f;
-    public static final float MOVE_SPEED_UNIT_PER_SEC = 20f;
+    public static final float MOVE_SPEED_UNIT_PER_SEC = 16f;
     public static final float DESTINATION_ARRIVED_THRESHOLD = 0.3f;
     public static final float MOVE_SPEED_DECREASE_FROM_DISTANCE = 5f;
 
@@ -12,18 +12,16 @@ public class Dog implements Runner {
     private Vector2 orientation;
     private Vector2 desiredMovement;
 
-    public Dog() {
+    public Sheep() {
         position = new Vector2();
         orientation = new Vector2();
         desiredMovement = new Vector2();
     }
 
-    @Override
     public Vector2 getPosition() {
         return position;
     }
 
-    @Override
     public Vector2 getOrientation() {
         return orientation;
     }
@@ -46,5 +44,9 @@ public class Dog implements Runner {
     @Override
     public float getMoveSpeedDecreaseFromDistance() {
         return MOVE_SPEED_DECREASE_FROM_DISTANCE;
+    }
+
+    public Vector2 getDesiredMovement() {
+        return desiredMovement;
     }
 }

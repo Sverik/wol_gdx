@@ -6,6 +6,7 @@ import com.po.conbanned.ConBanned;
 import com.po.conbanned.controller.AttackerController;
 import com.po.conbanned.controller.DogController;
 import com.po.conbanned.controller.HoverController;
+import com.po.conbanned.controller.SheepController;
 import com.po.conbanned.model.World;
 import com.po.conbanned.view.WorldRenderer;
 
@@ -20,6 +21,7 @@ public class GameScreen implements Screen, InputProcessor {
     private World 			world;
     private WorldRenderer 	renderer;
     private DogController   dogController;
+    private SheepController sheepController;
     private AttackerController attackerController;
     private HoverController landmineController;
 
@@ -34,6 +36,7 @@ public class GameScreen implements Screen, InputProcessor {
         world = new World();
         renderer = new WorldRenderer(world);
         dogController = new DogController(world);
+        sheepController = new SheepController(world);
         attackerController = new AttackerController(world);
         landmineController = new HoverController(world, renderer);
         Gdx.input.setInputProcessor(this);
@@ -45,6 +48,7 @@ public class GameScreen implements Screen, InputProcessor {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         dogController.update(delta);
+        sheepController.update(delta);
         boolean running = attackerController.update(delta);
         if (! running) {
             game.setScreen(new GameOverScreen(game, world.killCount));

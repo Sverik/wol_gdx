@@ -18,12 +18,13 @@ public class World {
         ;
     }
 
-    public static final int GRID_WIDTH = 64;
-    public static final int GRID_HEIGHT = 48;
+    public static final int GRID_WIDTH = 64 * 2;
+    public static final int GRID_HEIGHT = 48 * 2;
     public static final int MAX_HQ_HEALTH = 20;
 
     Dog dog;
     LinkedList<Vector3> dogTrace = new LinkedList<Vector3>();
+    LinkedList<Sheep> sheep = new LinkedList<Sheep>();
 
     /**
      * The blocks making up the world *
@@ -69,6 +70,10 @@ public class World {
 
     public LinkedList<Vector3> getDogTrace() {
         return dogTrace;
+    }
+
+    public LinkedList<Sheep> getSheep() {
+        return sheep;
     }
 
     /**
@@ -149,6 +154,22 @@ public class World {
         dog = new Dog();
         dog.getPosition().set(GRID_WIDTH / 2, GRID_HEIGHT / 2);
         dog.getOrientation().set(2, 1);
+
+        Sheep sheep = new Sheep();
+        this.sheep.add(sheep);
+        sheep.getPosition().set(GRID_WIDTH / 3, GRID_HEIGHT / 3);
+        sheep.getOrientation().set(1, 0);
+
+        sheep = new Sheep();
+        this.sheep.add(sheep);
+        sheep.getPosition().set(GRID_WIDTH / 4, GRID_HEIGHT / 3);
+        sheep.getOrientation().set(1, 0);
+
+        sheep = new Sheep();
+        this.sheep.add(sheep);
+        sheep.getPosition().set(GRID_WIDTH / 3, GRID_HEIGHT / 4);
+        sheep.getOrientation().set(1, 0);
+
 /*
         add(new Landmine(new Vector2(28,16)));
         add(new Landmine(new Vector2(30,15)));

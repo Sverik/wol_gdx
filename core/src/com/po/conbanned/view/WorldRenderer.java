@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.po.conbanned.model.Attacker;
 import com.po.conbanned.model.Dog;
 import com.po.conbanned.model.Landmine;
+import com.po.conbanned.model.Sheep;
 import com.po.conbanned.model.World;
 
 public class WorldRenderer {
@@ -135,10 +136,20 @@ public class WorldRenderer {
         debugRenderer.setProjectionMatrix(cam.combined);
 
         // Trace
+/*
         debugRenderer.begin(ShapeType.Filled);
         for (Vector3 trace : world.getDogTrace()) {
             debugRenderer.setColor(trace.z, 0, 0, 1f);
             debugRenderer.circle(trace.x, trace.y, trace.z);
+        }
+        debugRenderer.end();
+*/
+        
+        // Sheep
+        debugRenderer.begin(ShapeType.Line);
+        debugRenderer.setColor(new Color(0.3f, 0.3f, 1, 1));
+        for (Sheep sheep : world.getSheep()) {
+            drawSheep(sheep);
         }
         debugRenderer.end();
 
@@ -164,6 +175,13 @@ public class WorldRenderer {
         debugRenderer.rect(x, y, fullWidth * world.hqHealth / world.MAX_HQ_HEALTH, height);
         */
         debugRenderer.end();
+    }
+    
+    private void drawSheep(Sheep sheep) {
+        final float radius = 2.2f / 2;
+        debugRenderer.circle(sheep.getPosition().x, sheep.getPosition().y, radius, 12);
+        sheep.getOrientation().nor().scl(radius);
+        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getOrientation()));
     }
 
     public Vector2 screenToTile(int sx, int sy, Vector2 target) {
