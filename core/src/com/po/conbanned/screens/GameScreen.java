@@ -49,6 +49,8 @@ public class GameScreen implements Screen, InputProcessor {
 
         dogController.update(delta);
         sheepController.update(delta);
+        world.physics.step(delta, 6, 2);
+        sheepController.afterPhysics(delta);
         boolean running = attackerController.update(delta);
         if (! running) {
             game.setScreen(new GameOverScreen(game, world.killCount));

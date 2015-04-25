@@ -7,6 +7,7 @@ import com.po.conbanned.model.World;
 
 public class SheepController {
     private static final float TRACE_EFFECT_MAX_DISTANCE = 15f;
+    private static final float TRACE_EFFECT = 15f;
 
     private World world;
 
@@ -24,18 +25,25 @@ public class SheepController {
                 if (distanceFromTrace > TRACE_EFFECT_MAX_DISTANCE) {
                     continue;
                 }
-                Vector2 traceEffect = new Vector2(pos).sub(trace.x, trace.y).nor().scl(distanceFromTrace / TRACE_EFFECT_MAX_DISTANCE * trace.z);
+                Vector2 traceEffect = new Vector2(pos).sub(trace.x, trace.y).nor().scl(distanceFromTrace / TRACE_EFFECT_MAX_DISTANCE * trace.z * TRACE_EFFECT);
                 sheep.getDesiredMovement().add(traceEffect);
             }
 
             if (sheep.getDesiredMovement().len2() > 0f) {
                 Vector2 target = new Vector2(sheep.getDesiredMovement()).add(sheep.getPosition());
-                target.rotate((float) Math.random() * 5f * delta);
-                DogController.moveTowardsTarget(sheep, target, delta);
+//                target.rotate((float) Math.random() * 5f * delta);
+//                DogController.moveTowardsTarget(sheep, target, delta);
             } else {
                 // TODO: deceleration
                 sheep.getVelocity().set(0, 0);
             }
+            sheep.getBody().applyForceToCenter(sheep.getDesiredMovement(), true);
+        }
+    }
+
+    public void afterPhysics(float delta) {
+        for (Sheep sheep : world.getSheep()) {
+            sheep.getPosition().set(sheep.getBody().getPosition());
         }
     }
 }

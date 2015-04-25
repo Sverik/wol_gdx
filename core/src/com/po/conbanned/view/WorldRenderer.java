@@ -7,13 +7,20 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.utils.Array;
 import com.po.conbanned.model.Attacker;
 import com.po.conbanned.model.Dog;
 import com.po.conbanned.model.Landmine;
+import com.po.conbanned.model.Obstacle;
 import com.po.conbanned.model.Sheep;
 import com.po.conbanned.model.World;
+
+import java.util.List;
 
 public class WorldRenderer {
 
@@ -153,6 +160,29 @@ public class WorldRenderer {
         }
         debugRenderer.end();
 
+        // Obstacles
+        debugRenderer.begin(ShapeType.Line);
+        debugRenderer.setColor(new Color(0.7f, 0.7f, 0.7f, 1));
+        for (Obstacle obstacle : world.getObstacles()) {
+            Rectangle rect = obstacle.getShape();
+//            debugRenderer.rect(rect.x, rect.y, rect.width, rect.height);
+            Vector2 pos = obstacle.getBody().getPosition();
+            Array<Fixture> fixtures = obstacle.getBody().getFixtureList();
+            for (Fixture fix : fixtures) {
+                PolygonShape shape = (PolygonShape) fix.getShape();
+                Vector2 vertex0 = new Vector2();
+                Vector2 vertex1 = new Vector2();
+                shape.getVertex(0, vertex0);
+                for (int i = 1 ; i < shape.getVertexCount() + 1; i++) {
+                    shape.getVertex(i % shape.getVertexCount(), vertex1);
+                    debugRenderer.line(vertex0.x + pos.x, vertex0.y + pos.y, vertex1.x + pos.x, vertex1.y + pos.y);
+                    vertex0.set(vertex1);
+                }
+//                debugRenderer.rect(, 0, World.GRID_WIDTH / 2 - 1f, rect.height);
+            }
+        }
+        debugRenderer.end();
+
         // Touch
         debugRenderer.begin(ShapeType.Filled);
         debugRenderer.setColor(new Color(0, (world.getHoverState() == World.HoverState.NONE ? 0.4f : 1f), 0, 1));
@@ -161,7 +191,7 @@ public class WorldRenderer {
 
         // Dog
         Dog dog = world.getDog();
-        float radius = 2f / 2;
+        float radius = 2f;
         debugRenderer.begin(ShapeType.Line);
         debugRenderer.setColor(new Color(1, 0, 0, 1));
         debugRenderer.circle(dog.getPosition().x, dog.getPosition().y, radius, 12);
@@ -178,10 +208,11 @@ public class WorldRenderer {
     }
     
     private void drawSheep(Sheep sheep) {
-        final float radius = 2.2f / 2;
+        final float radius = Sheep.RADIUS;
         debugRenderer.circle(sheep.getPosition().x, sheep.getPosition().y, radius, 12);
         sheep.getOrientation().nor().scl(radius);
-        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getOrientation()));
+//        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getOrientation()));
+        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getDesiredMovement()));
     }
 
     public Vector2 screenToTile(int sx, int sy, Vector2 target) {

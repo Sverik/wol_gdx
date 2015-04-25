@@ -1,8 +1,11 @@
 package com.po.conbanned.model;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 
 public class Sheep implements Runner {
+    public static final float RADIUS = 2.2f;
+
     private static final float TURN_SPEED_DEG_PER_SEC = 360f;
     private static final float MOVE_SPEED_UNIT_PER_SEC = 16f;
     private static final float DESTINATION_ARRIVED_THRESHOLD = 0.3f;
@@ -13,12 +16,21 @@ public class Sheep implements Runner {
     private Vector2 orientation;
     private Vector2 velocity;
     private Vector2 desiredMovement;
+    private Body body;
 
     public Sheep() {
         position = new Vector2();
         orientation = new Vector2();
         velocity = new Vector2();
         desiredMovement = new Vector2();
+    }
+
+    public void setBody(Body body) {
+        this.body = body;
+    }
+
+    public Body getBody() {
+        return body;
     }
 
     public Vector2 getPosition() {

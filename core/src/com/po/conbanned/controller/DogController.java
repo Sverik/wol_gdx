@@ -72,9 +72,6 @@ public class DogController {
             currentSpeed = currentSpeed + runner.getAccelerationSpeedPerSec() * delta;
         }
         currentSpeed = Math.min(currentSpeed, runner.getMoveSpeedUnitPerSec());
-        if (runner instanceof Dog) {
-            System.out.println(currentSpeed + " -> " + desiredMoveSpeed);
-        }
         runner.getVelocity().set( new Vector2(runner.getOrientation()).nor().scl(currentSpeed) );
         runner.getPosition().add(runner.getVelocity().x * delta, runner.getVelocity().y * delta);
     }
