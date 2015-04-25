@@ -8,6 +8,7 @@ import com.po.conbanned.model.World;
 public class SheepController {
     private static final float TRACE_EFFECT_MAX_DISTANCE = 15f;
     private static final float TRACE_EFFECT = 15f;
+    private static final float FLOCK_EFFECT = 0.3f;
 
     private World world;
 
@@ -19,34 +20,48 @@ public class SheepController {
         for (Sheep sheep : world.getSheep()) {
             sheep.getDesiredMovement().set(0, 0);
 
-            Vector2 pos = sheep.getPosition();
-            for (Vector3 trace : world.getDogTrace()) {
-                float distanceFromTrace = pos.dst(trace.x, trace.y);
-                if (distanceFromTrace > TRACE_EFFECT_MAX_DISTANCE) {
-                    continue;
-                }
-                Vector2 traceEffect = new Vector2(pos).sub(trace.x, trace.y).nor().scl(distanceFromTrace / TRACE_EFFECT_MAX_DISTANCE * trace.z * TRACE_EFFECT);
-                sheep.getDesiredMovement().add(traceEffect);
-            }
+            // Põgenemine koera eest
+            Vector2 dogEffect = dogEffect(sheep);
 
-            if (sheep.getDesiredMovement().len2() > 0f) {
-                Vector2 target = new Vector2(sheep.getDesiredMovement()).add(sheep.getPosition());
-//                target.rotate((float) Math.random() * 5f * delta);
-//                DogController.moveTowardsTarget(sheep, target, delta);
-            } else {
-                // TODO: deceleration
-                sheep.getVelocity().set(0, 0);
-            }
+            // Jooksmine lähedalolevate lammaste poole
+            Vector2 flockEffect = flockEffect(sheep);
+
+            // Rahulikus olekus suvalises suunas sammu tegemine
+
+            sheep.getDesiredMovement().add(dogEffect).add(flockEffect);
+
             sheep.getBody().applyForceToCenter(sheep.getDesiredMovement(), true);
+
+            // pöörame lammast, pole parim lahendus
             if (sheep.getDesiredMovement().len2() > 0.01f) {
                 sheep.getOrientation().set(sheep.getDesiredMovement());
             }
         }
     }
 
-    public void afterPhysics(float delta) {
-        for (Sheep sheep : world.getSheep()) {
-            sheep.getPosition().set(sheep.getBody().getPosition());
+    private Vector2 dogEffect(Sheep sheep) {
+        Vector2 result = new Vector2();
+        Vector2 pos = sheep.getPosition();
+        for (Vector3 trace : world.getDogTrace()) {
+            float distanceFromTrace = pos.dst(trace.x, trace.y);
+            if (distanceFromTrace > TRACE_EFFECT_MAX_DISTANCE) {
+                continue;
+            }
+            Vector2 traceEffect = new Vector2(pos).sub(trace.x, trace.y).nor().scl(distanceFromTrace / TRACE_EFFECT_MAX_DISTANCE * trace.z * TRACE_EFFECT);
+            result.add(traceEffect);
         }
+        return result;
+    }
+
+    private Vector2 flockEffect(Sheep sheep) {
+        Vector2 result = new Vector2();
+        for (Sheep inFlock : sheep.getFlock()) {
+            result.x += inFlock.getPosition().x - sheep.getPosition().x;
+            result.y += inFlock.getPosition().y - sheep.getPosition().y;
+        }
+        return result.scl(FLOCK_EFFECT);
+    }
+
+    public void afterPhysics(float delta) {
     }
 }

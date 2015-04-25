@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.QueryCallback;
 import com.badlogic.gdx.utils.Array;
 import com.po.conbanned.model.Dog;
 import com.po.conbanned.model.Obstacle;
@@ -61,6 +62,7 @@ public class WorldRenderer {
 
     private void loadTextures() {
         lammas = new Texture(Gdx.files.internal("images/lammas.png"));
+        lammas.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
     }
 
     public void render() {
@@ -134,7 +136,7 @@ public class WorldRenderer {
 
         // Touch
         debugRenderer.begin(ShapeType.Filled);
-        debugRenderer.setColor(new Color(0, (world.getHoverState() == World.HoverState.NONE ? 0.4f : 1f), 0, 1));
+        debugRenderer.setColor(new Color(0f, (world.getHoverState() == World.HoverState.NONE ? 0.4f : 1f), 0, 1f));
         debugRenderer.circle(world.getHover().x, world.getHover().y, 0.5f);
         debugRenderer.end();
 
@@ -146,14 +148,29 @@ public class WorldRenderer {
         debugRenderer.circle(dog.getPosition().x, dog.getPosition().y, radius, 12);
         dog.getOrientation().nor().scl(radius);
         debugRenderer.line(dog.getPosition(), new Vector2(dog.getPosition()).add(dog.getOrientation()));
-
-        /*
-        float fullWidth = world.targetHouse.width - 2f;
-        debugRenderer.rect(x, y, fullWidth, height);
-        debugRenderer.setColor(new Color(0, 1, 0, 1));
-        debugRenderer.rect(x, y, fullWidth * world.hqHealth / world.MAX_HQ_HEALTH, height);
-        */
         debugRenderer.end();
+
+        // Sheep flock
+        final Sheep[] reported = new Sheep[1];
+        world.physics.QueryAABB(new QueryCallback() {
+            @Override
+            public boolean reportFixture(Fixture fixture) {
+                if (fixture.getUserData() != null && (fixture.getUserData() instanceof Sheep)) {
+                    reported[0] = (Sheep) fixture.getUserData();
+                    return false;
+                }
+                return true;
+            }
+        }, world.getHover().x, world.getHover().y, world.getHover().x, world.getHover().y);
+        debugRenderer.begin(ShapeType.Filled);
+        debugRenderer.setColor(new Color(0.2f, 0.2f, 1f, 0.0f));
+        if (reported[0] != null) {
+            for (Sheep inFlock : reported[0].getFlock()) {
+                debugRenderer.circle(inFlock.getPosition().x, inFlock.getPosition().y, 1.5f);
+            }
+        }
+        debugRenderer.end();
+
     }
     
     private void drawDebugSheep(Sheep sheep) {
@@ -161,7 +178,7 @@ public class WorldRenderer {
 //        debugRenderer.circle(sheep.getPosition().x, sheep.getPosition().y, radius, 12);
         sheep.getOrientation().nor().scl(radius);
 //        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getOrientation()));
-        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getDesiredMovement()));
+//        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getDesiredMovement()));
     }
 
     public Vector2 screenToTile(int sx, int sy, Vector2 target) {
