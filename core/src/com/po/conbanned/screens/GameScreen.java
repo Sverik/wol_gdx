@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.po.conbanned.ConBanned;
 import com.po.conbanned.controller.DogController;
 import com.po.conbanned.controller.HoverController;
+import com.po.conbanned.controller.MapController;
 import com.po.conbanned.controller.SheepController;
 import com.po.conbanned.model.World;
 import com.po.conbanned.view.WorldRenderer;
@@ -22,6 +23,7 @@ public class GameScreen implements Screen, InputProcessor {
     private DogController   dogController;
     private SheepController sheepController;
     private HoverController landmineController;
+    private MapController mapController;
 
     private int width, height;
 
@@ -36,11 +38,13 @@ public class GameScreen implements Screen, InputProcessor {
         dogController = new DogController(world);
         sheepController = new SheepController(world);
         landmineController = new HoverController(world, renderer);
+        mapController = new MapController(world);
         Gdx.input.setInputProcessor(this);
     }
 
     @Override
     public void render(float delta) {
+        mapController.update(delta);
         dogController.update(delta);
         sheepController.update(delta);
         world.physics.step(delta, 6, 2);

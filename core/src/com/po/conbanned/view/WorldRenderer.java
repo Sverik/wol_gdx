@@ -75,6 +75,9 @@ public class WorldRenderer {
 
         Gdx.gl.glViewport(0, 0, fieldWidth, height);
 
+        cam.position.set(World.GRID_WIDTH / 2f, World.GRID_HEIGHT / 2f + world.trip, 0);
+        cam.update();
+
         spriteBatch.setProjectionMatrix(cam.combined);
         spriteBatch.begin();
         drawSheep();
@@ -119,8 +122,6 @@ public class WorldRenderer {
         debugRenderer.begin(ShapeType.Line);
         debugRenderer.setColor(new Color(0.7f, 0.7f, 0.7f, 1));
         for (Obstacle obstacle : world.getObstacles()) {
-            Rectangle rect = obstacle.getShape();
-//            debugRenderer.rect(rect.x, rect.y, rect.width, rect.height);
             Vector2 pos = obstacle.getBody().getPosition();
             Array<Fixture> fixtures = obstacle.getBody().getFixtureList();
             for (Fixture fix : fixtures) {

@@ -5,6 +5,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.po.conbanned.model.Sheep;
 import com.po.conbanned.model.World;
 
+import java.util.Iterator;
+
 public class SheepController {
     private static final float TRACE_EFFECT_MAX_DISTANCE = 15f;
     private static final float TRACE_EFFECT = 15f;
@@ -19,7 +21,16 @@ public class SheepController {
     }
 
     public void update(float delta) {
-        for (Sheep sheep : world.getSheep()) {
+        Iterator<Sheep> iter = world.getSheep().iterator();
+        while (iter.hasNext()) {
+            Sheep sheep = iter.next();
+
+            if (sheep.getPosition().y + Sheep.RADIUS < world.trip) {
+                iter.remove();
+                // TODO: see keerab vist asja tuksi, aga miks?
+//                world.physics.destroyBody(sheep.getBody());
+            }
+
             sheep.getDesiredMovement().set(0, 0);
 
             // Põgenemine koera eest

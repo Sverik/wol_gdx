@@ -13,12 +13,17 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.utils.Array;
+import com.po.conbanned.track.ObstacleDef;
+import com.po.conbanned.track.PlacedPiece;
+import com.po.conbanned.track.TrackPiece;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Queue;
 
 public class World {
 
@@ -33,6 +38,9 @@ public class World {
     public static final int GRID_HEIGHT = 48 * 2;
 
     ArrayList<String> debugText = new ArrayList<String>();
+
+    public float trip = 0f;
+    public LinkedList<PlacedPiece> trackPieces = new LinkedList<PlacedPiece>();
 
     Dog dog;
     LinkedList<Vector3> dogTrace = new LinkedList<Vector3>();
@@ -166,10 +174,7 @@ public class World {
             addSheep((float)Math.random() * GRID_WIDTH, (float)Math.random() * GRID_HEIGHT);
         }
 
-        addObstacle(0, 0, 2, GRID_HEIGHT);
-        addObstacle(0, GRID_HEIGHT, GRID_WIDTH, GRID_HEIGHT - 2);
-        addObstacle(GRID_WIDTH, GRID_HEIGHT, GRID_WIDTH - 2, 0);
-        addObstacle(GRID_WIDTH, 0, 0, 2);
+        addObstacle(createObstacle(createRectangularAAObstacle(0, 0, 2, GRID_HEIGHT), 0f));
 
     }
 
@@ -203,26 +208,34 @@ public class World {
 
     }
 
-    private void addObstacle(float gx0, float gy0, float gx1, float gy1) {
-        Obstacle obstacle = new Obstacle();
+    public void addObstacle(Obstacle obstacle) {
         obstacles.add(obstacle);
-
-        Rectangle rect = new Rectangle(Math.min(gx0, gx1), Math.min(gy0, gy1), Math.abs(gx1-gx0), Math.abs(gy1-gy0));
-        obstacle.setShape(rect);
-        Vector2 pos = new Vector2();
-        pos = rect.getCenter(pos);
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.StaticBody;
-        bodyDef.position.set(pos);
-
-        Body body = physics.createBody(bodyDef);
+        Body body = physics.createBody(obstacle.getBodyDef());
         obstacle.setBody(body);
+        obstacle.getBody().createFixture(obstacle.getFixtureDef()).setUserData(Reference.obstacle(body));
+//        obstacle.getShape().dispose();
+    }
 
+    public ObstacleDef createRectangularAAObstacle(float gx0, float gy0, float gx1, float gy1) {
+        Rectangle rect = new Rectangle(Math.min(gx0, gx1), Math.min(gy0, gy1), Math.abs(gx1-gx0), Math.abs(gy1-gy0));
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2, new Vector2(0, 0), 0f);
+        return new ObstacleDef(shape, rect.getCenter(new Vector2()));
+    }
+
+    public Obstacle createObstacle(ObstacleDef obstacleDef, float tripOffset) {
+        Obstacle obstacle = new Obstacle();
+
+        obstacle.setShape(obstacleDef.shape);
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.position.set(new Vector2(obstacleDef.center).add(0, tripOffset));
+        obstacle.setBodyDef(bodyDef);
+
         FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = shape;
-        obstacle.getBody().createFixture(fixtureDef).setUserData(Reference.obstacle(body));
-        shape.dispose();
+        fixtureDef.shape = obstacleDef.shape;
+        obstacle.setFixtureDef(fixtureDef);
+
+        return obstacle;
     }
 }
