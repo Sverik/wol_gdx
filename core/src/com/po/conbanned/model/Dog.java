@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Dog implements Runner {
     private static final float TURN_SPEED_DEG_PER_SEC = 360f;
-    private static final float MOVE_SPEED_UNIT_PER_SEC = 20f;
+    private static final float MOVE_SPEED_UNIT_PER_SEC = 35f;
     private static final float DESTINATION_ARRIVED_THRESHOLD = 0.3f;
     private static final float MOVE_SPEED_DECREASE_FROM_DISTANCE = 5f;
     private static final float ACCELERATION_SPEED_PER_SEC = 40f;

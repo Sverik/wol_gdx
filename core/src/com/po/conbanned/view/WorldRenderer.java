@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -36,6 +37,8 @@ public class WorldRenderer {
      * for debug rendering *
      */
     ShapeRenderer debugRenderer = new ShapeRenderer();
+    SpriteBatch debugTextRenderer = new SpriteBatch();
+    BitmapFont debugFont;
 
     /** Textures **/
     private Texture lammas;
@@ -57,6 +60,7 @@ public class WorldRenderer {
         this.cam.position.set(World.GRID_WIDTH / 2f, World.GRID_HEIGHT / 2f, 0);
         this.cam.update();
         spriteBatch = new SpriteBatch();
+        debugFont = new BitmapFont();
         loadTextures();
     }
 
@@ -171,6 +175,7 @@ public class WorldRenderer {
         }
         debugRenderer.end();
 
+        drawDebugText();
     }
     
     private void drawDebugSheep(Sheep sheep) {
@@ -179,6 +184,18 @@ public class WorldRenderer {
         sheep.getOrientation().nor().scl(radius);
 //        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getOrientation()));
 //        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getDesiredMovement()));
+    }
+
+    private void drawDebugText() {
+        debugTextRenderer.begin();
+        float lineHeight = debugFont.getLineHeight();
+        float y = height - 12;
+        for (String line : world.getDebug()) {
+            debugFont.draw(debugTextRenderer, line, 12, y);
+            y -= lineHeight;
+        }
+        world.clearDebug();
+        debugTextRenderer.end();
     }
 
     public Vector2 screenToTile(int sx, int sy, Vector2 target) {

@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -30,6 +31,8 @@ public class World {
 
     public static final int GRID_WIDTH = 64 * 2;
     public static final int GRID_HEIGHT = 48 * 2;
+
+    ArrayList<String> debugText = new ArrayList<String>();
 
     Dog dog;
     LinkedList<Vector3> dogTrace = new LinkedList<Vector3>();
@@ -81,6 +84,18 @@ public class World {
         public void action(Sheep sheepA, Sheep sheepB);
     }
 
+    public void debug(String line) {
+        debugText.add(line);
+    }
+
+    public Iterable<String> getDebug() {
+        return debugText;
+    }
+
+    public void clearDebug() {
+        debugText.clear();
+    }
+
     private void createDemoWorld() {
         physics = new com.badlogic.gdx.physics.box2d.World(new Vector2(0, 0), true);
 
@@ -102,14 +117,21 @@ public class World {
             };
 
             private void event(Contact contact, FlockAction action) {
-                Object udA = contact.getFixtureA().getUserData();
-                Object udB = contact.getFixtureB().getUserData();
-                if (udA != null && udB != null && udA != udB && (udA instanceof Sheep) && (udB instanceof Sheep)) {
-                    Sheep sA = (Sheep) udA;
-                    Sheep sB = (Sheep) udB;
-
-                    action.action(sA, sB);
+                Reference refA = (Reference) contact.getFixtureA().getUserData();
+                Reference refB = (Reference) contact.getFixtureB().getUserData();
+                if (flockingEvent(refA, refB)) {
+                    action.action(refA.getSheep(), refB.getSheep());
                 }
+            }
+
+            private boolean flockingEvent(Reference refA, Reference refB) {
+                if (refA.getType() == Reference.Type.SHEEP && refB.getType() == Reference.Type.FLOCK) {
+                    return true;
+                }
+                if (refB.getType() == Reference.Type.SHEEP && refA.getType() == Reference.Type.FLOCK) {
+                    return true;
+                }
+                return false;
             }
 
             @Override
@@ -139,8 +161,6 @@ public class World {
 
         addSheep(GRID_WIDTH / 2, GRID_HEIGHT / 2);
 /*
-        addSheep(GRID_WIDTH / 4, GRID_HEIGHT / 3);
-        addSheep(GRID_WIDTH / 3, GRID_HEIGHT / 4);
 */
         for (int i = 0 ; i < 50 ; i++) {
             addSheep((float)Math.random() * GRID_WIDTH, (float)Math.random() * GRID_HEIGHT);
@@ -167,7 +187,7 @@ public class World {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 1f;
-        sheep.getBody().createFixture(fixtureDef).setUserData(sheep);
+        sheep.getBody().createFixture(fixtureDef).setUserData(Reference.sheep(sheep));
         shape.dispose();
 
         CircleShape flockShape = new CircleShape();
@@ -178,7 +198,7 @@ public class World {
         BodyDef flockBodyDef = new BodyDef();
         flockBodyDef.position.set(gridX, gridY);
         Body flockBody = physics.createBody(flockBodyDef);
-        flockBody.createFixture(flockSensorDef).setUserData(sheep);
+        flockBody.createFixture(flockSensorDef).setUserData(Reference.flock(sheep, flockBody));
         flockShape.dispose();
 
     }
@@ -202,7 +222,7 @@ public class World {
         shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2, new Vector2(0, 0), 0f);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
-        obstacle.getBody().createFixture(fixtureDef);
+        obstacle.getBody().createFixture(fixtureDef).setUserData(Reference.obstacle(body));
         shape.dispose();
     }
 }

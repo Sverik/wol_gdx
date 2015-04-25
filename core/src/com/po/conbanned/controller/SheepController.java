@@ -9,6 +9,8 @@ public class SheepController {
     private static final float TRACE_EFFECT_MAX_DISTANCE = 15f;
     private static final float TRACE_EFFECT = 15f;
     private static final float FLOCK_EFFECT = 0.3f;
+    private static final float EFFECTS_NEGLIGIBLE_THRESHOLD = 0.5f;
+    private static final float NO_TRACE_EFFECT_DECELERATION = 0.95f;
 
     private World world;
 
@@ -30,9 +32,13 @@ public class SheepController {
 
             sheep.getDesiredMovement().add(dogEffect).add(flockEffect);
 
+            if (sheep.getDesiredMovement().len() <= EFFECTS_NEGLIGIBLE_THRESHOLD) {
+                sheep.getBody().setLinearVelocity(sheep.getBody().getLinearVelocity().scl(NO_TRACE_EFFECT_DECELERATION));
+            }
+
             sheep.getBody().applyForceToCenter(sheep.getDesiredMovement(), true);
 
-            // pöörame lammast, pole parim lahendus
+            // TODO: pöörame lammast, pole parim lahendus
             if (sheep.getDesiredMovement().len2() > 0.01f) {
                 sheep.getOrientation().set(sheep.getDesiredMovement());
             }
