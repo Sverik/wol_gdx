@@ -38,6 +38,9 @@ public class SheepController {
                 sheep.getVelocity().set(0, 0);
             }
             sheep.getBody().applyForceToCenter(sheep.getDesiredMovement(), true);
+            if (sheep.getDesiredMovement().len2() > 0.01f) {
+                sheep.getOrientation().set(sheep.getDesiredMovement());
+            }
         }
     }
 

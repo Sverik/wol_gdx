@@ -2,6 +2,7 @@ package com.po.conbanned.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -13,14 +14,10 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
-import com.po.conbanned.model.Attacker;
 import com.po.conbanned.model.Dog;
-import com.po.conbanned.model.Landmine;
 import com.po.conbanned.model.Obstacle;
 import com.po.conbanned.model.Sheep;
 import com.po.conbanned.model.World;
-
-import java.util.List;
 
 public class WorldRenderer {
 
@@ -40,10 +37,7 @@ public class WorldRenderer {
     ShapeRenderer debugRenderer = new ShapeRenderer();
 
     /** Textures **/
-    private Texture grass;
-    private Texture rev;
-    private Texture mine;
-    private Texture hq;
+    private Texture lammas;
 
     private SpriteBatch spriteBatch;
     private int width;
@@ -66,77 +60,32 @@ public class WorldRenderer {
     }
 
     private void loadTextures() {
-/*
-        grass = new Texture(Gdx.files.internal("images/grass.png"));
-        rev = new Texture(Gdx.files.internal("images/rev-8px.png"));
-        mine = new Texture(Gdx.files.internal("images/mine-8px.png"));
-        hq = new Texture(Gdx.files.internal("images/hq-199px.png"));
-*/
+        lammas = new Texture(Gdx.files.internal("images/lammas.png"));
     }
 
     public void render() {
+        Gdx.gl.glClearColor(0.1f, 0.2f, 0.1f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         Gdx.gl.glViewport(0, 0, fieldWidth, height);
-/*
+
         spriteBatch.setProjectionMatrix(cam.combined);
         spriteBatch.begin();
-        drawField();
-        drawLandmines();
-        drawAttackers();
-        drawHq();
-        drawHover();
+        drawSheep();
         spriteBatch.end();
-*/
+
         drawDebug();
     }
 
-    private void drawField() {
-        for (float x = 0 ; x <= World.GRID_WIDTH; x+= GRASS_TILE_WIDTH ) {
-            for (float y = 0 ; y <= World.GRID_HEIGHT; y+= GRASS_TILE_WIDTH ) {
-                spriteBatch.draw(grass, x, y, GRASS_TILE_WIDTH, GRASS_TILE_WIDTH);
-            }
-        }
-    }
-
-    private void drawLandmines() {
-        for (Landmine mine : world.getLandmines()) {
-            spriteBatch.draw(this.mine, mine.getPosition().x, mine.getPosition().y, Landmine.SIZE, Landmine.SIZE);
-        }
-    }
-
-    private void drawAttackers() {
+    private void drawSheep() {
         Color color = new Color(1f, 1f, 1f, 1f);
-        for (Attacker a : world.getAttackers()) {
-            if (a.getState() == Attacker.State.ALIVE) {
-                color.a = 1f;
-            } else if (a.getState() == Attacker.State.DEAD) {
-                color.a = Math.max(0f, a.getSpinningTimeLeft() / Attacker.MAX_SPINNING_TIME);
-            }
+        for (Sheep s : world.getSheep()) {
             spriteBatch.setColor(color);
-            spriteBatch.draw(rev, a.getPosition().x, a.getPosition().y, Attacker.SIZE / 2, Attacker.SIZE / 2, Attacker.SIZE, Attacker.SIZE, 1,
-                    1, a.getVelocity().angle(), 0, 0, rev.getWidth(), rev.getHeight(), false, false);
+            spriteBatch.draw(lammas, s.getPosition().x - Sheep.RADIUS, s.getPosition().y - Sheep.RADIUS, Sheep.RADIUS, Sheep.RADIUS, Sheep.RADIUS * 2, Sheep.RADIUS * 2, 1,
+                    1, s.getOrientation().angle(), 0, 0, lammas.getWidth(), lammas.getHeight(), false, false);
         }
         color = new Color(1f, 1f, 1f, 1f);
         spriteBatch.setColor(color);
-    }
-
-    private void drawHq() {
-        spriteBatch.draw(hq, world.targetHouse.x, world.targetHouse.y, world.targetHouse.width, world.targetHouse.height);
-    }
-
-    private void drawHover() {
-        Color hc = HOVER_NP_COLOR;
-        switch (world.getHoverState()) {
-            case NONE:
-                break;
-            case PLACING_LANDMINE:
-                hc = HOVER_COLOR;
-            case PLACING_LANDMINE_NP:
-                Color color = spriteBatch.getColor();
-                spriteBatch.setColor(hc);
-                spriteBatch.draw(this.mine, world.getHover().x, world.getHover().y, Landmine.SIZE, Landmine.SIZE);
-                spriteBatch.setColor(color);
-                break;
-        }
     }
 
     private void drawDebug() {
@@ -156,7 +105,7 @@ public class WorldRenderer {
         debugRenderer.begin(ShapeType.Line);
         debugRenderer.setColor(new Color(0.3f, 0.3f, 1, 1));
         for (Sheep sheep : world.getSheep()) {
-            drawSheep(sheep);
+            drawDebugSheep(sheep);
         }
         debugRenderer.end();
 
@@ -207,9 +156,9 @@ public class WorldRenderer {
         debugRenderer.end();
     }
     
-    private void drawSheep(Sheep sheep) {
+    private void drawDebugSheep(Sheep sheep) {
         final float radius = Sheep.RADIUS;
-        debugRenderer.circle(sheep.getPosition().x, sheep.getPosition().y, radius, 12);
+//        debugRenderer.circle(sheep.getPosition().x, sheep.getPosition().y, radius, 12);
         sheep.getOrientation().nor().scl(radius);
 //        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getOrientation()));
         debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getDesiredMovement()));

@@ -3,7 +3,6 @@ package com.po.conbanned.screens;
 import com.badlogic.gdx.Screen;
 
 import com.po.conbanned.ConBanned;
-import com.po.conbanned.controller.AttackerController;
 import com.po.conbanned.controller.DogController;
 import com.po.conbanned.controller.HoverController;
 import com.po.conbanned.controller.SheepController;
@@ -22,7 +21,6 @@ public class GameScreen implements Screen, InputProcessor {
     private WorldRenderer 	renderer;
     private DogController   dogController;
     private SheepController sheepController;
-    private AttackerController attackerController;
     private HoverController landmineController;
 
     private int width, height;
@@ -37,23 +35,19 @@ public class GameScreen implements Screen, InputProcessor {
         renderer = new WorldRenderer(world);
         dogController = new DogController(world);
         sheepController = new SheepController(world);
-        attackerController = new AttackerController(world);
         landmineController = new HoverController(world, renderer);
         Gdx.input.setInputProcessor(this);
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         dogController.update(delta);
         sheepController.update(delta);
         world.physics.step(delta, 6, 2);
         sheepController.afterPhysics(delta);
-        boolean running = attackerController.update(delta);
+        boolean running = true;
         if (! running) {
-            game.setScreen(new GameOverScreen(game, world.killCount));
+            game.setScreen(new GameOverScreen(game, 0));
         }
         renderer.render();
     }

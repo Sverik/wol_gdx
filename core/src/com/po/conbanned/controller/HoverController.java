@@ -17,15 +17,10 @@ public class HoverController {
 
     public void hover(int sx, int sy) {
         worldRenderer.screenToTile(sx, sy, world.getHover());
-        if (world.canPlaceLandmineToCurrentHover()) {
-            world.setHoverState(World.HoverState.PLACING_LANDMINE);
-        } else {
-            world.setHoverState(World.HoverState.PLACING_LANDMINE_NP);
-        }
+        world.setHoverState(World.HoverState.PLACING_LANDMINE);
     }
 
     public void place(int x, int y) {
-        world.add(new Landmine(new Vector2(world.getHover())));
         world.setHoverState(World.HoverState.NONE);
     }
 }
