@@ -12,12 +12,14 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.QueryCallback;
 import com.badlogic.gdx.utils.Array;
 import com.po.conbanned.model.Dog;
 import com.po.conbanned.model.Obstacle;
+import com.po.conbanned.model.Reference;
 import com.po.conbanned.model.Sheep;
 import com.po.conbanned.model.World;
 
@@ -185,32 +187,52 @@ public class WorldRenderer {
         debugRenderer.end();
 
         // Sheep flock
-        final Sheep[] reported = new Sheep[1];
-        world.physics.QueryAABB(new QueryCallback() {
-            @Override
-            public boolean reportFixture(Fixture fixture) {
-                if (fixture.getUserData() != null && (fixture.getUserData() instanceof Sheep)) {
-                    reported[0] = (Sheep) fixture.getUserData();
-                    return false;
-                }
-                return true;
-            }
-        }, world.getHover().x, world.getHover().y, world.getHover().x, world.getHover().y);
-        debugRenderer.begin(ShapeType.Filled);
-        debugRenderer.setColor(new Color(0.2f, 0.2f, 1f, 0.0f));
-        if (reported[0] != null) {
-            for (Sheep inFlock : reported[0].getFlock()) {
-                debugRenderer.circle(inFlock.getPosition().x, inFlock.getPosition().y, 1.5f);
-            }
-        }
-        debugRenderer.end();
+        debugFlock();
 
         drawDebugText();
     }
-    
+
+    private void debugFlock() {
+        if (world.debugRequest == World.DebugRequest.FLOCK) {
+            world.debugRequest = null;
+            world.physics.QueryAABB(new QueryCallback() {
+                @Override
+                public boolean reportFixture(Fixture fixture) {
+                    if (fixture.getUserData() != null && (fixture.getUserData() instanceof Reference)) {
+                        Reference ref = ((Reference)fixture.getUserData());
+                        if (ref.getType() == Reference.Type.SHEEP) {
+                            world.showFlock = ref.getSheep();
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }, world.debugCoords.x, world.debugCoords.y, world.debugCoords.x, world.debugCoords.y);
+        }
+
+        if (world.showFlock != null) {
+            world.debug("flock size =" + world.showFlock.getFlock().size());
+
+            debugRenderer.begin(ShapeType.Filled);
+            debugRenderer.setColor(new Color(1, 0.3f, 0.3f, 0.0f));
+            debugRenderer.circle(world.showFlock.getPosition().x, world.showFlock.getPosition().y, 1.5f);
+            debugRenderer.setColor(new Color(0.2f, 0.2f, 1f, 0.0f));
+            for (Sheep inFlock : world.showFlock.getFlock()) {
+                debugRenderer.circle(inFlock.getPosition().x, inFlock.getPosition().y, 1f);
+            }
+            debugRenderer.end();
+
+            debugRenderer.begin(ShapeType.Line);
+            debugRenderer.setColor(new Color(0.2f, 0.2f, 1f, 0.0f));
+            debugRenderer.circle(world.showFlock.getPosition().x, world.showFlock.getPosition().y, Sheep.FLOCK_RADIUS);
+            debugRenderer.end();
+        }
+
+    }
+
     private void drawDebugSheep(Sheep sheep) {
         final float radius = Sheep.RADIUS;
-//        debugRenderer.circle(sheep.getPosition().x, sheep.getPosition().y, radius, 12);
+        debugRenderer.circle(sheep.getPosition().x, sheep.getPosition().y, radius, 12);
         sheep.getOrientation().nor().scl(radius);
 //        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getOrientation()));
 //        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getDesiredMovement()));

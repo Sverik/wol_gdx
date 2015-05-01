@@ -3,7 +3,7 @@ package com.po.conbanned.model;
 import com.badlogic.gdx.physics.box2d.Body;
 
 public class Reference {
-    enum Type {
+    public enum Type {
         SHEEP,
         DOG,
         FLOCK,
@@ -60,5 +60,15 @@ public class Reference {
 
     public static Reference obstacle(Body body) {
         return new Reference(Type.OBSTACLE, null, null, body);
+    }
+
+    @Override
+    public String toString() {
+        return "Reference{" +
+                "type=" + type +
+                ", sheep=" + sheep +
+                ", dog=" + dog +
+                ", body=" + body +
+                '}';
     }
 }

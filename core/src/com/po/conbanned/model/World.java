@@ -52,6 +52,14 @@ public class World {
     HoverState hoverState = HoverState.NONE;
     Vector2 hover = new Vector2();
 
+    public Vector2 debugCoords = new Vector2();
+    public DebugRequest debugRequest = null;
+    public enum DebugRequest {
+        FLOCK,
+        ;
+    }
+    public Sheep showFlock = null;
+
     public World() {
         createDemoWorld();
     }
@@ -89,7 +97,7 @@ public class World {
     }
 
     private interface FlockAction {
-        public void action(Sheep sheepA, Sheep sheepB);
+        public void action(Sheep sheepA, Sheep sheepB, boolean touching);
     }
 
     public void debug(String line) {
@@ -126,17 +134,21 @@ public class World {
         physics.setContactListener(new ContactListener() {
             private FlockAction begin = new FlockAction() {
                 @Override
-                public void action(Sheep sheepA, Sheep sheepB) {
-                    sheepA.getFlock().add(sheepB);
-                    sheepB.getFlock().add(sheepA);
+                public void action(Sheep sheepA, Sheep sheepB, boolean isTouching) {
+                    if (isTouching) {
+                        sheepA.getFlock().add(sheepB);
+                        sheepB.getFlock().add(sheepA);
+                    }
                 }
             };
 
             private FlockAction end = new FlockAction() {
                 @Override
-                public void action(Sheep sheepA, Sheep sheepB) {
-                    sheepA.getFlock().remove(sheepB);
-                    sheepB.getFlock().remove(sheepA);
+                public void action(Sheep sheepA, Sheep sheepB, boolean isTouching) {
+                    if (!isTouching) {
+                        sheepA.getFlock().remove(sheepB);
+                        sheepB.getFlock().remove(sheepA);
+                    }
                 }
             };
 
@@ -144,7 +156,7 @@ public class World {
                 Reference refA = (Reference) contact.getFixtureA().getUserData();
                 Reference refB = (Reference) contact.getFixtureB().getUserData();
                 if (flockingEvent(refA, refB)) {
-                    action.action(refA.getSheep(), refB.getSheep());
+                    action.action(refA.getSheep(), refB.getSheep(), contact.isTouching());
                 }
             }
 
@@ -227,10 +239,7 @@ public class World {
         FixtureDef flockSensorDef = new FixtureDef();
         flockSensorDef.shape = flockShape;
         flockSensorDef.isSensor = true;
-        BodyDef flockBodyDef = new BodyDef();
-        flockBodyDef.position.set(gridX, gridY);
-        Body flockBody = physics.createBody(flockBodyDef);
-        flockBody.createFixture(flockSensorDef).setUserData(Reference.flock(sheep, flockBody));
+        sheep.getBody().createFixture(flockSensorDef).setUserData(Reference.flock(sheep, sheep.getBody()));
         flockShape.dispose();
 
     }

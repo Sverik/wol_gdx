@@ -21,4 +21,9 @@ public class HoverController {
         worldRenderer.screenToTile(sx, sy, world.getHover());
         world.setHoverState(World.HoverState.NONE);
     }
+
+    public void showFlock(int sx, int sy) {
+        worldRenderer.screenToTile(sx, sy, world.debugCoords);
+        world.debugRequest = World.DebugRequest.FLOCK;
+    }
 }

@@ -7,6 +7,7 @@ import com.po.conbanned.track.EmptyStrip;
 import com.po.conbanned.track.Funnel;
 import com.po.conbanned.track.ObstacleDef;
 import com.po.conbanned.track.PlacedPiece;
+import com.po.conbanned.track.RightSideBridge;
 import com.po.conbanned.track.TrackPiece;
 
 import java.util.LinkedList;
@@ -21,9 +22,10 @@ public class MapController {
     public MapController(World world) {
         this.world = world;
         pieces = new TrackPiece[]{
-                new DiamondCenter(world),
                 new EmptyStrip(world),
+                new DiamondCenter(world),
                 new Funnel(world),
+                new RightSideBridge(world),
         };
         addPiece(pieces[1], 0f);
     }
@@ -35,10 +37,11 @@ public class MapController {
         world.debug("track pieces = " + world.trackPieces.size());
         world.debug("sheep count = " + world.getSheep().size());
 
-
         if (world.trip + World.GRID_HEIGHT - 5f > world.trackPieces.getLast().tripOffset + world.trackPieces.getLast().track.getLength()) {
-//            TrackPiece selected = pieces[Math.random() < 0.2 ? 0 : 1];
-            TrackPiece selected = pieces[2];
+            TrackPiece selected = pieces[3];
+            if (Math.random() < 0.2) {
+                selected = pieces[((int) (Math.floor(Math.random() * (pieces.length - 1)) + 1))];
+            }
 //            TrackPiece selected = pieces[0];
             addPiece(selected);
         }

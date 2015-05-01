@@ -20,7 +20,7 @@ public class GameScreen implements Screen, InputProcessor {
     private WorldRenderer 	renderer;
     private DogController   dogController;
     private SheepController sheepController;
-    private HoverController landmineController;
+    private HoverController hoverController;
     private MapController mapController;
 
     private int width, height;
@@ -35,7 +35,7 @@ public class GameScreen implements Screen, InputProcessor {
         renderer = new WorldRenderer(world);
         dogController = new DogController(world);
         sheepController = new SheepController(world);
-        landmineController = new HoverController(world, renderer);
+        hoverController = new HoverController(world, renderer);
         mapController = new MapController(world);
         Gdx.input.setInputProcessor(this);
     }
@@ -95,31 +95,36 @@ public class GameScreen implements Screen, InputProcessor {
 
     @Override
     public boolean keyTyped(char character) {
-        // TODO Auto-generated method stub
+        if ('f' == character || 'F' == character) {
+            hoverController.showFlock(lastMouseX, lastMouseY);
+        }
         return false;
     }
 
     @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
-        landmineController.down(x, y);
+        hoverController.down(x, y);
         return true;
     }
 
     @Override
     public boolean touchUp(int x, int y, int pointer, int button) {
-        landmineController.up(x, y);
+        hoverController.up(x, y);
         return true;
     }
 
     @Override
     public boolean touchDragged(int x, int y, int pointer) {
-        landmineController.down(x, y);
+        hoverController.down(x, y);
         return true;
     }
 
+    int lastMouseX = 0;
+    int lastMouseY = 0;
     @Override
     public boolean mouseMoved(int x, int y) {
-        // TODO Auto-generated method stub
+        lastMouseX = x;
+        lastMouseY = y;
         return false;
     }
 
