@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactFilter;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
@@ -28,14 +29,13 @@ import java.util.Queue;
 public class World {
 
     public static enum HoverState {
-        PLACING_LANDMINE_NP,
-        PLACING_LANDMINE,
+        ACTIVE,
         NONE,
         ;
     }
 
-    public static final int GRID_WIDTH = 64 * 2;
-    public static final int GRID_HEIGHT = 48 * 2;
+    public static final int GRID_WIDTH = 90;
+    public static final int GRID_HEIGHT = 150;
 
     ArrayList<String> debugText = new ArrayList<String>();
 
@@ -107,6 +107,22 @@ public class World {
     private void createDemoWorld() {
         physics = new com.badlogic.gdx.physics.box2d.World(new Vector2(0, 0), true);
 
+        physics.setContactFilter(new ContactFilter() {
+            @Override
+            public boolean shouldCollide(Fixture fixtureA, Fixture fixtureB) {
+                Reference refA = (Reference) fixtureA.getUserData();
+                Reference refB = (Reference) fixtureB.getUserData();
+                // lammas ja koer ei kollideeru
+                if (refA.getType() == Reference.Type.DOG && refB.getType() == Reference.Type.SHEEP) {
+                    return false;
+                }
+                if (refA.getType() == Reference.Type.SHEEP && refB.getType() == Reference.Type.DOG) {
+                    return false;
+                }
+                return true;
+            }
+        });
+
         physics.setContactListener(new ContactListener() {
             private FlockAction begin = new FlockAction() {
                 @Override
@@ -164,8 +180,19 @@ public class World {
         });
 
         dog = new Dog();
-        dog.getPosition().set(GRID_WIDTH / 2, GRID_HEIGHT / 2);
         dog.getOrientation().set(2, 1);
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.linearDamping = Dog.LINEAR_DAMPING;
+        bodyDef.position.set(GRID_WIDTH / 2, GRID_HEIGHT / 2);
+        dog.setBody(physics.createBody(bodyDef));
+        CircleShape shape = new CircleShape();
+        shape.setRadius(Dog.RADIUS);
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 1f;
+        dog.getBody().createFixture(fixtureDef).setUserData(Reference.dog(dog));
+        shape.dispose();
 
         addSheep(GRID_WIDTH / 2, GRID_HEIGHT / 2);
 /*

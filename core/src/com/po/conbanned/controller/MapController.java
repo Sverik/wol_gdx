@@ -4,6 +4,7 @@ import com.po.conbanned.model.Obstacle;
 import com.po.conbanned.model.World;
 import com.po.conbanned.track.DiamondCenter;
 import com.po.conbanned.track.EmptyStrip;
+import com.po.conbanned.track.Funnel;
 import com.po.conbanned.track.ObstacleDef;
 import com.po.conbanned.track.PlacedPiece;
 import com.po.conbanned.track.TrackPiece;
@@ -11,6 +12,8 @@ import com.po.conbanned.track.TrackPiece;
 import java.util.LinkedList;
 
 public class MapController {
+    private static final float MAP_SCROLL_SPEED = 0f;
+
     private TrackPiece[] pieces;
 
     private World world;
@@ -20,12 +23,13 @@ public class MapController {
         pieces = new TrackPiece[]{
                 new DiamondCenter(world),
                 new EmptyStrip(world),
+                new Funnel(world),
         };
         addPiece(pieces[1], 0f);
     }
 
     public void update(float delta) {
-        world.trip += delta * 4;
+        world.trip += delta * MAP_SCROLL_SPEED;
 
         world.debug("trip = " + world.trip);
         world.debug("track pieces = " + world.trackPieces.size());
@@ -33,7 +37,8 @@ public class MapController {
 
 
         if (world.trip + World.GRID_HEIGHT - 5f > world.trackPieces.getLast().tripOffset + world.trackPieces.getLast().track.getLength()) {
-            TrackPiece selected = pieces[Math.random() < 0.2 ? 0 : 1];
+//            TrackPiece selected = pieces[Math.random() < 0.2 ? 0 : 1];
+            TrackPiece selected = pieces[2];
 //            TrackPiece selected = pieces[0];
             addPiece(selected);
         }

@@ -1,8 +1,5 @@
 package com.po.conbanned.controller;
 
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
-import com.po.conbanned.model.Landmine;
 import com.po.conbanned.model.World;
 import com.po.conbanned.view.WorldRenderer;
 
@@ -15,12 +12,13 @@ public class HoverController {
         this.worldRenderer = worldRenderer;
     }
 
-    public void hover(int sx, int sy) {
+    public void down(int sx, int sy) {
         worldRenderer.screenToTile(sx, sy, world.getHover());
-        world.setHoverState(World.HoverState.PLACING_LANDMINE);
+        world.setHoverState(World.HoverState.ACTIVE);
     }
 
-    public void place(int x, int y) {
+    public void up(int sx, int sy) {
+        worldRenderer.screenToTile(sx, sy, world.getHover());
         world.setHoverState(World.HoverState.NONE);
     }
 }

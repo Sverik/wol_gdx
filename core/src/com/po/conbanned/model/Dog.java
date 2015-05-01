@@ -1,64 +1,60 @@
 package com.po.conbanned.model;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 
-public class Dog implements Runner {
-    private static final float TURN_SPEED_DEG_PER_SEC = 360f;
-    private static final float MOVE_SPEED_UNIT_PER_SEC = 35f;
-    private static final float DESTINATION_ARRIVED_THRESHOLD = 0.3f;
-    private static final float MOVE_SPEED_DECREASE_FROM_DISTANCE = 5f;
-    private static final float ACCELERATION_SPEED_PER_SEC = 40f;
+public class Dog {
+    public static final float RADIUS = 1.4f;
+    public static final float MOVE_SCALE = 25f;
+    public static final float MAX_MOVE_FORCE = 200f;
+    public static final float LINEAR_DAMPING = 1f;
+    public static final float STANDING_SCARINESS = 2f;
+    public static final float LAYING_SCARINESS = 0f;
 
-    private Vector2 position;
     private Vector2 orientation;
-    private Vector2 velocity;
     private Vector2 desiredMovement;
+    private Body body;
+    private float scariness;
 
     public Dog() {
-        position = new Vector2();
         orientation = new Vector2();
-        velocity = new Vector2();
         desiredMovement = new Vector2();
     }
 
-    @Override
-    public Vector2 getPosition() {
-        return position;
+    public Body getBody() {
+        return body;
     }
 
-    @Override
+    public void setBody(Body body) {
+        this.body = body;
+    }
+
+    public float getScariness() {
+        return scariness;
+    }
+
+    public void setScariness(float scariness) {
+        this.scariness = scariness;
+    }
+
+    public Vector2 getDesiredMovement() {
+        return desiredMovement;
+    }
+
+    public void setDesiredMovement(Vector2 desiredMovement) {
+        this.desiredMovement = desiredMovement;
+    }
+
+    public Vector2 getPosition() {
+        return body.getPosition();
+    }
+
     public Vector2 getOrientation() {
         return orientation;
     }
 
-    @Override
     public Vector2 getVelocity() {
-        return velocity;
-    }
-
-    @Override
-    public float getAccelerationSpeedPerSec() {
-        return ACCELERATION_SPEED_PER_SEC;
-    }
-
-    @Override
-    public float getTurnSpeedDegPerSec() {
-        return TURN_SPEED_DEG_PER_SEC;
-    }
-
-    @Override
-    public float getMoveSpeedUnitPerSec() {
-        return MOVE_SPEED_UNIT_PER_SEC;
-    }
-
-    @Override
-    public float getDestinationArrivedThreshold() {
-        return DESTINATION_ARRIVED_THRESHOLD;
-    }
-
-    @Override
-    public float getMoveSpeedDecreaseFromDistance() {
-        return MOVE_SPEED_DECREASE_FROM_DISTANCE;
+        return body.getLinearVelocity();
     }
 
 

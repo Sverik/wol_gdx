@@ -11,9 +11,7 @@ import com.po.conbanned.model.World;
 import com.po.conbanned.view.WorldRenderer;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.GL20;
 
 public class GameScreen implements Screen, InputProcessor {
 
@@ -103,19 +101,19 @@ public class GameScreen implements Screen, InputProcessor {
 
     @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
-        landmineController.hover(x, y);
+        landmineController.down(x, y);
         return true;
     }
 
     @Override
     public boolean touchUp(int x, int y, int pointer, int button) {
-        landmineController.place(x, y);
+        landmineController.up(x, y);
         return true;
     }
 
     @Override
     public boolean touchDragged(int x, int y, int pointer) {
-        landmineController.hover(x, y);
+        landmineController.down(x, y);
         return true;
     }
 

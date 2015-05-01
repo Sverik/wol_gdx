@@ -7,9 +7,9 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Fixture;
@@ -23,9 +23,11 @@ import com.po.conbanned.model.World;
 
 public class WorldRenderer {
 
+    private static final float DEBUG_CAM_HEIGHT = 500f;
+
     private static final float GRASS_TILE_WIDTH = 5f;
 
-    private static final int TOOLBOX_WIDTH_PX = 0;
+    private static final float TARGET_FIELD_RATIO = (float)World.GRID_WIDTH / World.GRID_HEIGHT;
 
     private static final Color HOVER_COLOR = new Color(1f, 1f, 1f, 0.7f);
     private static final Color HOVER_NP_COLOR = new Color(1f, 1f, 1f, 0.2f);
@@ -36,6 +38,7 @@ public class WorldRenderer {
     /**
      * for debug rendering *
      */
+    private OrthographicCamera debugCam;
     ShapeRenderer debugRenderer = new ShapeRenderer();
     SpriteBatch debugTextRenderer = new SpriteBatch();
     BitmapFont debugFont;
@@ -45,13 +48,29 @@ public class WorldRenderer {
 
     private SpriteBatch spriteBatch;
     private int width;
-    private int fieldWidth;
     private int height;
+    private int fieldHeight;
+    private int fieldWidth;
 
     public void setSize (int w, int h) {
-        this.width = w;
-        this.fieldWidth = width - TOOLBOX_WIDTH_PX;
-        this.height = h;
+        width = w;
+        height = h;
+        float ratio = (float)width / (float)height;
+        if (ratio > TARGET_FIELD_RATIO) {
+            fieldHeight = height;
+            fieldWidth = (int) Math.floor(fieldHeight * TARGET_FIELD_RATIO);
+        } else {
+            fieldWidth = width;
+            fieldHeight = (int) Math.floor(fieldWidth / TARGET_FIELD_RATIO);
+        }
+        System.out.format("rW = %d rH = %d r = %f%n", width, height, ratio);
+        System.out.format("fW = %d fH = %d R = %f%n", fieldWidth, fieldHeight, (float)fieldWidth / (float)fieldHeight);
+        System.out.format("---%n");
+
+        debugCam.viewportWidth = (float)width / height * DEBUG_CAM_HEIGHT;
+        debugCam.position.set(debugCam.viewportWidth / 2, DEBUG_CAM_HEIGHT / 2, 0);
+        debugCam.update();
+        debugFont.setScale(1, 1);
     }
 
     public WorldRenderer(World world) {
@@ -59,21 +78,31 @@ public class WorldRenderer {
         this.cam = new OrthographicCamera(World.GRID_WIDTH, World.GRID_HEIGHT);
         this.cam.position.set(World.GRID_WIDTH / 2f, World.GRID_HEIGHT / 2f, 0);
         this.cam.update();
+        
+        debugCam = new OrthographicCamera(DEBUG_CAM_HEIGHT, DEBUG_CAM_HEIGHT);
+        debugCam.update();
+
         spriteBatch = new SpriteBatch();
-        debugFont = new BitmapFont();
         loadTextures();
     }
 
     private void loadTextures() {
         lammas = new Texture(Gdx.files.internal("images/lammas.png"));
         lammas.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/OpenSans-Regular.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 16;
+        debugFont = generator.generateFont(parameter);
+        generator.dispose();
     }
 
     public void render() {
         Gdx.gl.glClearColor(0.1f, 0.2f, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        Gdx.gl.glViewport(0, 0, fieldWidth, height);
+        //Gdx.gl.glViewport((width - fieldWidth) / 2, 0, fieldWidth, fieldHeight);
+        Gdx.gl.glViewport(0, 0, fieldWidth, fieldHeight);
 
         cam.position.set(World.GRID_WIDTH / 2f, World.GRID_HEIGHT / 2f + world.trip, 0);
         cam.update();
@@ -147,7 +176,7 @@ public class WorldRenderer {
 
         // Dog
         Dog dog = world.getDog();
-        float radius = 2f;
+        float radius = Dog.RADIUS;
         debugRenderer.begin(ShapeType.Line);
         debugRenderer.setColor(new Color(1, 0, 0, 1));
         debugRenderer.circle(dog.getPosition().x, dog.getPosition().y, radius, 12);
@@ -188,9 +217,14 @@ public class WorldRenderer {
     }
 
     private void drawDebugText() {
+        Gdx.gl.glViewport(0, 0, width, height);
+
+        debugTextRenderer.setProjectionMatrix(debugCam.combined);
         debugTextRenderer.begin();
+        debugTextRenderer.draw(lammas, 90, 20, 10, 10);
+
         float lineHeight = debugFont.getLineHeight();
-        float y = height - 12;
+        float y = DEBUG_CAM_HEIGHT - 12;
         for (String line : world.getDebug()) {
             debugFont.draw(debugTextRenderer, line, 12, y);
             y -= lineHeight;
@@ -200,7 +234,7 @@ public class WorldRenderer {
     }
 
     public Vector2 screenToTile(int sx, int sy, Vector2 target) {
-        Vector3 tc = cam.unproject(new Vector3(sx, sy, 0), 0, 0, fieldWidth, height);
+        Vector3 tc = cam.unproject(new Vector3(sx, sy, 0), 0, 0, fieldWidth, fieldHeight);
         tc.x = (float) Math.floor(tc.x);
         tc.y = (float) Math.floor(tc.y);
         target.set(tc.x, tc.y);

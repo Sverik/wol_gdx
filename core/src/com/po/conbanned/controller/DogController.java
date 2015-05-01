@@ -3,7 +3,6 @@ package com.po.conbanned.controller;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.po.conbanned.model.Dog;
-import com.po.conbanned.model.Runner;
 import com.po.conbanned.model.World;
 
 import java.util.Iterator;
@@ -20,25 +19,47 @@ public class DogController {
     }
 
     public void update(float delta) {
-        if (world.getHoverState() != World.HoverState.NONE) {
+        Dog dog = world.getDog();
 
-            moveTowardsTarget(world.getDog(), world.getHover(), delta);
+        dog.getDesiredMovement().set(0, 0);
+        if (world.getHoverState() == World.HoverState.ACTIVE) {
+            // dog is scary
+            dog.setScariness(Dog.STANDING_SCARINESS);
 
+            // move
+            dog.getDesiredMovement().add(world.getHover()).sub(dog.getPosition()).scl(Dog.MOVE_SCALE);
+            dog.getDesiredMovement().clamp(0, Dog.MAX_MOVE_FORCE);
+
+            // trace
+            Vector3 lastTrace = null;
             if (world.getDogTrace().isEmpty()) {
-                world.getDogTrace().add(new Vector3(world.getDog().getPosition(), 1f));
+                world.getDogTrace().add(new Vector3(dog.getPosition(), 1f));
             } else {
-                Vector3 lastTrace = world.getDogTrace().getLast();
-                if (world.getDog().getPosition().dst2(lastTrace.x, lastTrace.y) >= TRACE_DISTANCE_2) {
-                    world.getDogTrace().add(new Vector3(world.getDog().getPosition(), 1f));
+                lastTrace = world.getDogTrace().getLast();
+                if (dog.getPosition().dst2(lastTrace.x, lastTrace.y) >= TRACE_DISTANCE_2) {
+                    world.getDogTrace().add(new Vector3(dog.getPosition(), 1f));
                 }
             }
             while (world.getDogTrace().size() > TRACE_MAX_LENGTH) {
                 world.getDogTrace().removeFirst();
             }
+
+            // orientation
+            if (lastTrace != null) {
+                dog.getOrientation().set(dog.getPosition()).sub(lastTrace.x, lastTrace.y).nor();
+            }
         } else {
             // TODO: deceleration
-            world.getDog().getVelocity().set(0, 0);
+            dog.getVelocity().set(0, 0);
+
+            // dog is not scary
+            dog.setScariness(Dog.LAYING_SCARINESS);
         }
+
+        // füüsika
+        dog.getBody().applyForceToCenter(dog.getDesiredMovement(), true);
+
+        // jäljed kaovad
         Iterator<Vector3> traceIter = world.getDogTrace().iterator();
         while (traceIter.hasNext()) {
             Vector3 trace = traceIter.next();
@@ -49,30 +70,4 @@ public class DogController {
         }
     }
     
-    public static void moveTowardsTarget(Runner runner, Vector2 target, float delta) {
-        float desiredAngleDelta = new Vector2(target).sub(runner.getPosition()).angle(runner.getOrientation());
-//            System.out.println(desiredAngleDelta);
-        float direction = Math.signum(desiredAngleDelta);
-        float magnitude = Math.abs(desiredAngleDelta);
-        magnitude = Math.min(magnitude, delta * runner.getTurnSpeedDegPerSec());
-        float angleDelta = magnitude * direction;
-//            System.out.println(desiredAngleDelta + ", " + angleDelta);
-        runner.getOrientation().rotate(-angleDelta);
-
-        float distance = runner.getPosition().dst(target);
-        // distance D_F_D...D_A_T -> S...0
-        float desiredMoveSpeed = runner.getMoveSpeedUnitPerSec();
-        if (distance <= runner.getMoveSpeedDecreaseFromDistance()) {
-            desiredMoveSpeed = (distance - runner.getDestinationArrivedThreshold()) / (runner.getMoveSpeedDecreaseFromDistance() - runner.getDestinationArrivedThreshold()) * runner.getMoveSpeedUnitPerSec();
-            desiredMoveSpeed = Math.max(0, desiredMoveSpeed);
-        }
-        // acceleration
-        float currentSpeed = runner.getVelocity().len();
-        if (desiredMoveSpeed > currentSpeed) {
-            currentSpeed = currentSpeed + runner.getAccelerationSpeedPerSec() * delta;
-        }
-        currentSpeed = Math.min(currentSpeed, runner.getMoveSpeedUnitPerSec());
-        runner.getVelocity().set( new Vector2(runner.getOrientation()).nor().scl(currentSpeed) );
-        runner.getPosition().add(runner.getVelocity().x * delta, runner.getVelocity().y * delta);
-    }
 }

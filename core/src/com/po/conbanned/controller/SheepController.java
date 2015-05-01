@@ -2,6 +2,7 @@ package com.po.conbanned.controller;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.po.conbanned.model.Dog;
 import com.po.conbanned.model.Sheep;
 import com.po.conbanned.model.World;
 
@@ -59,15 +60,23 @@ public class SheepController {
     private Vector2 dogEffect(Sheep sheep) {
         Vector2 result = new Vector2();
         Vector2 pos = sheep.getPosition();
+        // Dog trace is scary
         for (Vector3 trace : world.getDogTrace()) {
-            float distanceFromTrace = pos.dst(trace.x, trace.y);
-            if (distanceFromTrace > TRACE_EFFECT_MAX_DISTANCE) {
-                continue;
-            }
-            Vector2 traceEffect = new Vector2(pos).sub(trace.x, trace.y).nor().scl(distanceFromTrace / TRACE_EFFECT_MAX_DISTANCE * trace.z * TRACE_EFFECT);
-            result.add(traceEffect);
+            addScareEffect(trace.x, trace.y, trace.z, pos, result);
         }
+        // Dog is scary
+        Dog dog = world.getDog();
+        addScareEffect(dog.getPosition().x, dog.getPosition().y, dog.getScariness(), pos, result);
         return result;
+    }
+
+    private void addScareEffect(float x, float y, float magnitude, Vector2 sheepPos, Vector2 result) {
+        float distanceFromTrace = sheepPos.dst(x, y);
+        if (distanceFromTrace > TRACE_EFFECT_MAX_DISTANCE) {
+            return;
+        }
+        Vector2 traceEffect = new Vector2(sheepPos).sub(x, y).nor().scl(distanceFromTrace / TRACE_EFFECT_MAX_DISTANCE * magnitude * TRACE_EFFECT);
+        result.add(traceEffect);
     }
 
     private Vector2 flockEffect(Sheep sheep) {
