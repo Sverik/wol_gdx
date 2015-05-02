@@ -50,7 +50,8 @@ public class DogController {
             }
         } else {
             // TODO: deceleration
-            dog.getVelocity().set(0, 0);
+//            dog.getVelocity().set(0, 0);
+            dog.getBody().setLinearVelocity(0, 0);
 
             // dog is not scary
             dog.setScariness(Dog.LAYING_SCARINESS);
