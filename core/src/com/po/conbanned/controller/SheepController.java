@@ -9,11 +9,12 @@ import com.po.conbanned.model.World;
 import java.util.Iterator;
 
 public class SheepController {
-	private static final float TRACE_EFFECT_MAX_DISTANCE = 15f;
-	private static final float TRACE_EFFECT = 15f;
-	private static final float FLOCK_EFFECT = 0.3f;
-	private static final float EFFECTS_NEGLIGIBLE_THRESHOLD = 0.5f;
-	private static final float NO_TRACE_EFFECT_DECELERATION = 0.95f;
+	private static final float TRACE_EFFECT_MAX_DISTANCE = 25f;
+	private static final float TRACE_EFFECT = 20f;
+	private static final float FLOCK_CENTER_EFFECT = 1f;
+	private static final float FLOCK_ALIGNMENT_EFFECT = 1f;
+	private static final float DOG_EFFECT_NEGLIGIBLE_THRESHOLD_2 = 0.0001f;
+	private static final float NO_EFFECT_DECELERATION = 0.2f;
 
 	private World world;
 
@@ -36,25 +37,41 @@ public class SheepController {
 
 			// Põgenemine koera eest
 			Vector2 dogEffect = dogEffect(sheep);
+			sheep.dbgDogEffect = dogEffect;
 
-			// Jooksmine lähedalolevate lammaste poole
-			Vector2 flockEffect = flockEffect(sheep);
+			// Jooksmine karja keskele
+			Vector2 flockCenterEffect = flockCenterEffect(sheep);
+			sheep.dbgFlockCenterEffect = flockCenterEffect;
+
+			// Jooksmine karja üldises suunas
+			Vector2 flockAlignmentEffect = flockAlignmentEffect(sheep);
+			sheep.dbgFlockAlignmentEffect = flockAlignmentEffect;
 
 			// Rahulikus olekus suvalises suunas sammu tegemine
 
-			sheep.getDesiredMovement().add(dogEffect).add(flockEffect);
+			// Kõik jõud kokku arvestada
+			sheep.getDesiredMovement().add(dogEffect).add(flockCenterEffect).add(flockAlignmentEffect);
 
-			if (sheep.getDesiredMovement().len() <= EFFECTS_NEGLIGIBLE_THRESHOLD) {
-				sheep.getBody().setLinearVelocity(sheep.getBody().getLinearVelocity().scl(NO_TRACE_EFFECT_DECELERATION));
+			if (dogEffect.len2() <= DOG_EFFECT_NEGLIGIBLE_THRESHOLD_2) {
+				sheep.getBody().setLinearVelocity(sheep.getBody().getLinearVelocity().scl((float) Math.pow(NO_EFFECT_DECELERATION, delta)));
 			}
 
 			sheep.getBody().applyForceToCenter(sheep.getDesiredMovement(), true);
 
-			// TODO: pöörame lammast, pole parim lahendus
-			if (sheep.getDesiredMovement().len2() > 0.01f) {
-				sheep.getOrientation().set(sheep.getDesiredMovement());
+			Vector2 movement = new Vector2(sheep.getPosition()).sub(sheep.getLastKnownPos());
+			if (movement.len2() > 0.001f) {
+				sheep.getOrientation().set(movement);
 			}
+			sheep.getLastKnownPos().set(sheep.getPosition());
 		}
+	}
+
+	private Vector2 flockAlignmentEffect(Sheep sheep) {
+		Vector2 result = new Vector2();
+		for (Sheep inFlock : sheep.getFlock()) {
+			result.add(inFlock.getOrientation());
+		}
+		return result.scl(FLOCK_ALIGNMENT_EFFECT);
 	}
 
 	private Vector2 dogEffect(Sheep sheep) {
@@ -79,13 +96,13 @@ public class SheepController {
 		result.add(traceEffect);
 	}
 
-	private Vector2 flockEffect(Sheep sheep) {
+	private Vector2 flockCenterEffect(Sheep sheep) {
 		Vector2 result = new Vector2();
 		for (Sheep inFlock : sheep.getFlock()) {
 			result.x += inFlock.getPosition().x - sheep.getPosition().x;
 			result.y += inFlock.getPosition().y - sheep.getPosition().y;
 		}
-		return result.scl(FLOCK_EFFECT);
+		return result.scl(FLOCK_CENTER_EFFECT);
 	}
 
 	public void afterPhysics(float delta) {

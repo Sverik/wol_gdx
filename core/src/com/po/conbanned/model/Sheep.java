@@ -13,10 +13,16 @@ public class Sheep {
 	private Vector2 desiredMovement;
 	private Body body;
 	private HashSet<Sheep> flock = new HashSet<Sheep>();
+	private Vector2 lastKnownPos;
+
+	public Vector2 dbgDogEffect = new Vector2();
+	public Vector2 dbgFlockCenterEffect = new Vector2();
+	public Vector2 dbgFlockAlignmentEffect = new Vector2();
 
 	public Sheep() {
 		orientation = new Vector2();
 		desiredMovement = new Vector2();
+		lastKnownPos = new Vector2();
 	}
 
 	public HashSet<Sheep> getFlock() {
@@ -41,5 +47,9 @@ public class Sheep {
 
 	public Vector2 getDesiredMovement() {
 		return desiredMovement;
+	}
+
+	public Vector2 getLastKnownPos() {
+		return lastKnownPos;
 	}
 }

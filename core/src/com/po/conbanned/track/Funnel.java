@@ -9,9 +9,9 @@ public class Funnel extends TrackPiece {
 	public Funnel(World world) {
 		super(world);
 		for (int x : new int[]{0, World.GRID_WIDTH}) {
-			Rectangle rect = new Rectangle(x, 10, 60, 60);
+			Rectangle rect = new Rectangle(x, 10, 50, 50);
 			PolygonShape shape = new PolygonShape();
-			shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2, new Vector2(-30, 0), (float) (Math.PI / 4d));
+			shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2, new Vector2(-25, 0), (float) (Math.PI / 4d));
 
 			add(new ObstacleDef(shape, rect.getCenter(new Vector2())));
 		}

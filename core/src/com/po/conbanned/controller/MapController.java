@@ -13,7 +13,7 @@ import com.po.conbanned.track.TrackPiece;
 import java.util.LinkedList;
 
 public class MapController {
-	private static final float MAP_SCROLL_SPEED = 0f;
+	private static final float MAP_SCROLL_SPEED = 3f;
 
 	private TrackPiece[] pieces;
 
@@ -27,7 +27,7 @@ public class MapController {
 				new Funnel(world),
 				new RightSideBridge(world),
 		};
-		addPiece(pieces[1], 0f);
+		addPiece(pieces[0], 0f);
 	}
 
 	public void update(float delta) {
@@ -38,11 +38,11 @@ public class MapController {
 		world.debug("sheep count = " + world.getSheep().size());
 
 		if (world.trip + World.GRID_HEIGHT - 5f > world.trackPieces.getLast().tripOffset + world.trackPieces.getLast().track.getLength()) {
-			TrackPiece selected = pieces[3];
+			TrackPiece selected = pieces[0];
 			if (Math.random() < 0.2) {
 				selected = pieces[((int) (Math.floor(Math.random() * (pieces.length - 1)) + 1))];
 			}
-//            TrackPiece selected = pieces[0];
+//            selected = pieces[0];
 			addPiece(selected);
 		}
 

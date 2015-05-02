@@ -112,7 +112,7 @@ public class WorldRenderer {
 
 		spriteBatch.setProjectionMatrix(cam.combined);
 		spriteBatch.begin();
-		drawSheep();
+//		drawSheep();
 		spriteBatch.end();
 
 		drawDebug();
@@ -232,11 +232,17 @@ public class WorldRenderer {
 	}
 
 	private void drawDebugSheep(Sheep sheep) {
-		final float radius = Sheep.RADIUS;
-		debugRenderer.circle(sheep.getPosition().x, sheep.getPosition().y, radius, 12);
-		sheep.getOrientation().nor().scl(radius);
-//        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getOrientation()));
-//        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getDesiredMovement()));
+		debugRenderer.setColor(new Color(0.3f, 0.3f, 1, 1));
+		debugRenderer.circle(sheep.getPosition().x, sheep.getPosition().y, Sheep.RADIUS, 12);
+		sheep.getOrientation().nor().scl(Sheep.RADIUS);
+        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getOrientation()));
+//		debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getDesiredMovement()));
+		debugRenderer.setColor(1, 0.2f, 0.2f, 1);
+//		debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.dbgDogEffect));
+		debugRenderer.setColor(0.2f, 1, 0.2f, 1);
+//		debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.dbgFlockCenterEffect));
+		debugRenderer.setColor(0.2f, 1, 1, 1);
+//		debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.dbgFlockAlignmentEffect));
 	}
 
 	private void drawDebugText() {
@@ -244,7 +250,7 @@ public class WorldRenderer {
 
 		debugTextRenderer.setProjectionMatrix(debugCam.combined);
 		debugTextRenderer.begin();
-		debugTextRenderer.draw(lammas, 90, 20, 10, 10);
+//		debugTextRenderer.draw(lammas, 90, 20, 10, 10);
 
 		float lineHeight = debugFont.getLineHeight();
 		float y = DEBUG_CAM_HEIGHT - 12;

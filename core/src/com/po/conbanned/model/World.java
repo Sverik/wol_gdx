@@ -218,7 +218,7 @@ public class World {
 		sheep.getOrientation().set(1, 0);
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyDef.BodyType.DynamicBody;
-		bodyDef.linearDamping = 0.3f;
+		bodyDef.linearDamping = 0.1f;
 		bodyDef.position.set(gridX, gridY);
 		sheep.setBody(physics.createBody(bodyDef));
 		CircleShape shape = new CircleShape();
