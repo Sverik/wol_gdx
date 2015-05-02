@@ -4,62 +4,62 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public class Attacker {
-    public static enum State {
-        ALIVE,
-        DEAD,
-        ;
-    }
-    public static final float SIZE = 1.2f;
-    public static final float MAX_SPINNING_TIME = 2;
+	public static enum State {
+		ALIVE,
+		DEAD,;
+	}
 
-    Vector2 position = new Vector2();
-    Vector2 velocity = new Vector2();
-    Rectangle bounds = new Rectangle();
+	public static final float SIZE = 1.2f;
+	public static final float MAX_SPINNING_TIME = 2;
 
-    State state;
+	Vector2 position = new Vector2();
+	Vector2 velocity = new Vector2();
+	Rectangle bounds = new Rectangle();
 
-    float spinningTimeLeft = MAX_SPINNING_TIME;
+	State state;
 
-    public Attacker(Vector2 pos) {
-        state = State.ALIVE;
-        position = pos;
-        bounds.x = position.x;
-        bounds.y = position.y;
-        bounds.width = SIZE;
-        bounds.height = SIZE;
-    }
+	float spinningTimeLeft = MAX_SPINNING_TIME;
 
-    public void setPosition(Vector2 position) {
-        this.position = position;
-        bounds.x = position.x;
-        bounds.y = position.y;
-    }
+	public Attacker(Vector2 pos) {
+		state = State.ALIVE;
+		position = pos;
+		bounds.x = position.x;
+		bounds.y = position.y;
+		bounds.width = SIZE;
+		bounds.height = SIZE;
+	}
 
-    public Vector2 getPosition() {
-        return position;
-    }
+	public void setPosition(Vector2 position) {
+		this.position = position;
+		bounds.x = position.x;
+		bounds.y = position.y;
+	}
 
-    public Rectangle getBounds() {
-        return bounds;
-    }
+	public Vector2 getPosition() {
+		return position;
+	}
 
-    public Vector2 getVelocity() {
-        return velocity;
-    }
+	public Rectangle getBounds() {
+		return bounds;
+	}
 
-    public State getState() {
-        return state;
-    }
+	public Vector2 getVelocity() {
+		return velocity;
+	}
 
-    public void setState(State state) {
-        this.state = state;
-    }
+	public State getState() {
+		return state;
+	}
 
-    public float getSpinningTimeLeft() {
-        return spinningTimeLeft;
-    }
+	public void setState(State state) {
+		this.state = state;
+	}
 
-    public void subtractSpinningTime(float delta) {
-        this.spinningTimeLeft -= delta;
-    }
+	public float getSpinningTimeLeft() {
+		return spinningTimeLeft;
+	}
+
+	public void subtractSpinningTime(float delta) {
+		this.spinningTimeLeft -= delta;
+	}
 }

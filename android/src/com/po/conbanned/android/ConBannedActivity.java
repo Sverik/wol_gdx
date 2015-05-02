@@ -8,13 +8,13 @@ import com.po.conbanned.ConBanned;
 
 public class ConBannedActivity extends AndroidApplication {
 	@Override
-	protected void onCreate (Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-        config.useAccelerometer = false;
-        config.useCompass = false;
-        config.useWakelock = true;
-        config.useGLSurfaceView20API18 = true;
-        initialize(new ConBanned(), config);
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
+		config.useAccelerometer = false;
+		config.useCompass = false;
+		config.useWakelock = true;
+		config.useGLSurfaceView20API18 = true;
+		initialize(new ConBanned(), config);
 	}
 }

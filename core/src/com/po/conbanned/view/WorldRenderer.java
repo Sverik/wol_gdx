@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.QueryCallback;
@@ -25,242 +24,244 @@ import com.po.conbanned.model.World;
 
 public class WorldRenderer {
 
-    private static final float DEBUG_CAM_HEIGHT = 500f;
+	private static final float DEBUG_CAM_HEIGHT = 500f;
 
-    private static final float GRASS_TILE_WIDTH = 5f;
+	private static final float GRASS_TILE_WIDTH = 5f;
 
-    private static final float TARGET_FIELD_RATIO = (float)World.GRID_WIDTH / World.GRID_HEIGHT;
+	private static final float TARGET_FIELD_RATIO = (float) World.GRID_WIDTH / World.GRID_HEIGHT;
 
-    private static final Color HOVER_COLOR = new Color(1f, 1f, 1f, 0.7f);
-    private static final Color HOVER_NP_COLOR = new Color(1f, 1f, 1f, 0.2f);
+	private static final Color HOVER_COLOR = new Color(1f, 1f, 1f, 0.7f);
+	private static final Color HOVER_NP_COLOR = new Color(1f, 1f, 1f, 0.2f);
 
-    private World world;
-    private OrthographicCamera cam;
+	private World world;
+	private OrthographicCamera cam;
 
-    /**
-     * for debug rendering *
-     */
-    private OrthographicCamera debugCam;
-    ShapeRenderer debugRenderer = new ShapeRenderer();
-    SpriteBatch debugTextRenderer = new SpriteBatch();
-    BitmapFont debugFont;
+	/**
+	 * for debug rendering *
+	 */
+	private OrthographicCamera debugCam;
+	ShapeRenderer debugRenderer = new ShapeRenderer();
+	SpriteBatch debugTextRenderer = new SpriteBatch();
+	BitmapFont debugFont;
 
-    /** Textures **/
-    private Texture lammas;
+	/**
+	 * Textures *
+	 */
+	private Texture lammas;
 
-    private SpriteBatch spriteBatch;
-    private int width;
-    private int height;
-    private int fieldHeight;
-    private int fieldWidth;
+	private SpriteBatch spriteBatch;
+	private int width;
+	private int height;
+	private int fieldHeight;
+	private int fieldWidth;
 
-    public void setSize (int w, int h) {
-        width = w;
-        height = h;
-        float ratio = (float)width / (float)height;
-        if (ratio > TARGET_FIELD_RATIO) {
-            fieldHeight = height;
-            fieldWidth = (int) Math.floor(fieldHeight * TARGET_FIELD_RATIO);
-        } else {
-            fieldWidth = width;
-            fieldHeight = (int) Math.floor(fieldWidth / TARGET_FIELD_RATIO);
-        }
-        System.out.format("rW = %d rH = %d r = %f%n", width, height, ratio);
-        System.out.format("fW = %d fH = %d R = %f%n", fieldWidth, fieldHeight, (float)fieldWidth / (float)fieldHeight);
-        System.out.format("---%n");
+	public void setSize(int w, int h) {
+		width = w;
+		height = h;
+		float ratio = (float) width / (float) height;
+		if (ratio > TARGET_FIELD_RATIO) {
+			fieldHeight = height;
+			fieldWidth = (int) Math.floor(fieldHeight * TARGET_FIELD_RATIO);
+		} else {
+			fieldWidth = width;
+			fieldHeight = (int) Math.floor(fieldWidth / TARGET_FIELD_RATIO);
+		}
+		System.out.format("rW = %d rH = %d r = %f%n", width, height, ratio);
+		System.out.format("fW = %d fH = %d R = %f%n", fieldWidth, fieldHeight, (float) fieldWidth / (float) fieldHeight);
+		System.out.format("---%n");
 
-        debugCam.viewportWidth = (float)width / height * DEBUG_CAM_HEIGHT;
-        debugCam.position.set(debugCam.viewportWidth / 2, DEBUG_CAM_HEIGHT / 2, 0);
-        debugCam.update();
-        debugFont.setScale(1, 1);
-    }
+		debugCam.viewportWidth = (float) width / height * DEBUG_CAM_HEIGHT;
+		debugCam.position.set(debugCam.viewportWidth / 2, DEBUG_CAM_HEIGHT / 2, 0);
+		debugCam.update();
+		debugFont.setScale(1, 1);
+	}
 
-    public WorldRenderer(World world) {
-        this.world = world;
-        this.cam = new OrthographicCamera(World.GRID_WIDTH, World.GRID_HEIGHT);
-        this.cam.position.set(World.GRID_WIDTH / 2f, World.GRID_HEIGHT / 2f, 0);
-        this.cam.update();
-        
-        debugCam = new OrthographicCamera(DEBUG_CAM_HEIGHT, DEBUG_CAM_HEIGHT);
-        debugCam.update();
+	public WorldRenderer(World world) {
+		this.world = world;
+		this.cam = new OrthographicCamera(World.GRID_WIDTH, World.GRID_HEIGHT);
+		this.cam.position.set(World.GRID_WIDTH / 2f, World.GRID_HEIGHT / 2f, 0);
+		this.cam.update();
 
-        spriteBatch = new SpriteBatch();
-        loadTextures();
-    }
+		debugCam = new OrthographicCamera(DEBUG_CAM_HEIGHT, DEBUG_CAM_HEIGHT);
+		debugCam.update();
 
-    private void loadTextures() {
-        lammas = new Texture(Gdx.files.internal("images/lammas.png"));
-        lammas.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+		spriteBatch = new SpriteBatch();
+		loadTextures();
+	}
 
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/OpenSans-Regular.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 16;
-        debugFont = generator.generateFont(parameter);
-        generator.dispose();
-    }
+	private void loadTextures() {
+		lammas = new Texture(Gdx.files.internal("images/lammas.png"));
+		lammas.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
-    public void render() {
-        Gdx.gl.glClearColor(0.1f, 0.2f, 0.1f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/OpenSans-Regular.ttf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		parameter.size = 16;
+		debugFont = generator.generateFont(parameter);
+		generator.dispose();
+	}
 
-        //Gdx.gl.glViewport((width - fieldWidth) / 2, 0, fieldWidth, fieldHeight);
-        Gdx.gl.glViewport(0, 0, fieldWidth, fieldHeight);
+	public void render() {
+		Gdx.gl.glClearColor(0.1f, 0.2f, 0.1f, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        cam.position.set(World.GRID_WIDTH / 2f, World.GRID_HEIGHT / 2f + world.trip, 0);
-        cam.update();
+		//Gdx.gl.glViewport((width - fieldWidth) / 2, 0, fieldWidth, fieldHeight);
+		Gdx.gl.glViewport(0, 0, fieldWidth, fieldHeight);
 
-        spriteBatch.setProjectionMatrix(cam.combined);
-        spriteBatch.begin();
-        drawSheep();
-        spriteBatch.end();
+		cam.position.set(World.GRID_WIDTH / 2f, World.GRID_HEIGHT / 2f + world.trip, 0);
+		cam.update();
 
-        drawDebug();
-    }
+		spriteBatch.setProjectionMatrix(cam.combined);
+		spriteBatch.begin();
+		drawSheep();
+		spriteBatch.end();
 
-    private void drawSheep() {
-        Color color = new Color(1f, 1f, 1f, 1f);
-        for (Sheep s : world.getSheep()) {
-            spriteBatch.setColor(color);
-            spriteBatch.draw(lammas, s.getPosition().x - Sheep.RADIUS, s.getPosition().y - Sheep.RADIUS, Sheep.RADIUS, Sheep.RADIUS, Sheep.RADIUS * 2, Sheep.RADIUS * 2, 1,
-                    1, s.getOrientation().angle(), 0, 0, lammas.getWidth(), lammas.getHeight(), false, false);
-        }
-        color = new Color(1f, 1f, 1f, 1f);
-        spriteBatch.setColor(color);
-    }
+		drawDebug();
+	}
 
-    private void drawDebug() {
-        debugRenderer.setProjectionMatrix(cam.combined);
+	private void drawSheep() {
+		Color color = new Color(1f, 1f, 1f, 1f);
+		for (Sheep s : world.getSheep()) {
+			spriteBatch.setColor(color);
+			spriteBatch.draw(lammas, s.getPosition().x - Sheep.RADIUS, s.getPosition().y - Sheep.RADIUS, Sheep.RADIUS, Sheep.RADIUS, Sheep.RADIUS * 2, Sheep.RADIUS * 2, 1,
+					1, s.getOrientation().angle(), 0, 0, lammas.getWidth(), lammas.getHeight(), false, false);
+		}
+		color = new Color(1f, 1f, 1f, 1f);
+		spriteBatch.setColor(color);
+	}
 
-        // Trace
+	private void drawDebug() {
+		debugRenderer.setProjectionMatrix(cam.combined);
+
+		// Trace
 /**/
-        debugRenderer.begin(ShapeType.Filled);
-        for (Vector3 trace : world.getDogTrace()) {
-            debugRenderer.setColor(trace.z, 0, 0, 1f);
-            debugRenderer.circle(trace.x, trace.y, trace.z);
-        }
-        debugRenderer.end();
+		debugRenderer.begin(ShapeType.Filled);
+		for (Vector3 trace : world.getDogTrace()) {
+			debugRenderer.setColor(trace.z, 0, 0, 1f);
+			debugRenderer.circle(trace.x, trace.y, trace.z);
+		}
+		debugRenderer.end();
 /**/
-        
-        // Sheep
-        debugRenderer.begin(ShapeType.Line);
-        debugRenderer.setColor(new Color(0.3f, 0.3f, 1, 1));
-        for (Sheep sheep : world.getSheep()) {
-            drawDebugSheep(sheep);
-        }
-        debugRenderer.end();
 
-        // Obstacles
-        debugRenderer.begin(ShapeType.Line);
-        debugRenderer.setColor(new Color(0.7f, 0.7f, 0.7f, 1));
-        for (Obstacle obstacle : world.getObstacles()) {
-            Vector2 pos = obstacle.getBody().getPosition();
-            Array<Fixture> fixtures = obstacle.getBody().getFixtureList();
-            for (Fixture fix : fixtures) {
-                PolygonShape shape = (PolygonShape) fix.getShape();
-                Vector2 vertex0 = new Vector2();
-                Vector2 vertex1 = new Vector2();
-                shape.getVertex(0, vertex0);
-                for (int i = 1 ; i < shape.getVertexCount() + 1; i++) {
-                    shape.getVertex(i % shape.getVertexCount(), vertex1);
-                    debugRenderer.line(vertex0.x + pos.x, vertex0.y + pos.y, vertex1.x + pos.x, vertex1.y + pos.y);
-                    vertex0.set(vertex1);
-                }
+		// Sheep
+		debugRenderer.begin(ShapeType.Line);
+		debugRenderer.setColor(new Color(0.3f, 0.3f, 1, 1));
+		for (Sheep sheep : world.getSheep()) {
+			drawDebugSheep(sheep);
+		}
+		debugRenderer.end();
+
+		// Obstacles
+		debugRenderer.begin(ShapeType.Line);
+		debugRenderer.setColor(new Color(0.7f, 0.7f, 0.7f, 1));
+		for (Obstacle obstacle : world.getObstacles()) {
+			Vector2 pos = obstacle.getBody().getPosition();
+			Array<Fixture> fixtures = obstacle.getBody().getFixtureList();
+			for (Fixture fix : fixtures) {
+				PolygonShape shape = (PolygonShape) fix.getShape();
+				Vector2 vertex0 = new Vector2();
+				Vector2 vertex1 = new Vector2();
+				shape.getVertex(0, vertex0);
+				for (int i = 1; i < shape.getVertexCount() + 1; i++) {
+					shape.getVertex(i % shape.getVertexCount(), vertex1);
+					debugRenderer.line(vertex0.x + pos.x, vertex0.y + pos.y, vertex1.x + pos.x, vertex1.y + pos.y);
+					vertex0.set(vertex1);
+				}
 //                debugRenderer.rect(, 0, World.GRID_WIDTH / 2 - 1f, rect.height);
-            }
-        }
-        debugRenderer.end();
+			}
+		}
+		debugRenderer.end();
 
-        // Touch
-        debugRenderer.begin(ShapeType.Filled);
-        debugRenderer.setColor(new Color(0f, (world.getHoverState() == World.HoverState.NONE ? 0.4f : 1f), 0, 1f));
-        debugRenderer.circle(world.getHover().x, world.getHover().y, 0.5f);
-        debugRenderer.end();
+		// Touch
+		debugRenderer.begin(ShapeType.Filled);
+		debugRenderer.setColor(new Color(0f, (world.getHoverState() == World.HoverState.NONE ? 0.4f : 1f), 0, 1f));
+		debugRenderer.circle(world.getHover().x, world.getHover().y, 0.5f);
+		debugRenderer.end();
 
-        // Dog
-        Dog dog = world.getDog();
-        float radius = Dog.RADIUS;
-        debugRenderer.begin(ShapeType.Line);
-        debugRenderer.setColor(new Color(1, 0, 0, 1));
-        debugRenderer.circle(dog.getPosition().x, dog.getPosition().y, radius, 12);
-        dog.getOrientation().nor().scl(radius);
-        debugRenderer.line(dog.getPosition(), new Vector2(dog.getPosition()).add(dog.getOrientation()));
-        debugRenderer.end();
+		// Dog
+		Dog dog = world.getDog();
+		float radius = Dog.RADIUS;
+		debugRenderer.begin(ShapeType.Line);
+		debugRenderer.setColor(new Color(1, 0, 0, 1));
+		debugRenderer.circle(dog.getPosition().x, dog.getPosition().y, radius, 12);
+		dog.getOrientation().nor().scl(radius);
+		debugRenderer.line(dog.getPosition(), new Vector2(dog.getPosition()).add(dog.getOrientation()));
+		debugRenderer.end();
 
-        // Sheep flock
-        debugFlock();
+		// Sheep flock
+		debugFlock();
 
-        drawDebugText();
-    }
+		drawDebugText();
+	}
 
-    private void debugFlock() {
-        if (world.debugRequest == World.DebugRequest.FLOCK) {
-            world.debugRequest = null;
-            world.physics.QueryAABB(new QueryCallback() {
-                @Override
-                public boolean reportFixture(Fixture fixture) {
-                    if (fixture.getUserData() != null && (fixture.getUserData() instanceof Reference)) {
-                        Reference ref = ((Reference)fixture.getUserData());
-                        if (ref.getType() == Reference.Type.SHEEP) {
-                            world.showFlock = ref.getSheep();
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-            }, world.debugCoords.x, world.debugCoords.y, world.debugCoords.x, world.debugCoords.y);
-        }
+	private void debugFlock() {
+		if (world.debugRequest == World.DebugRequest.FLOCK) {
+			world.debugRequest = null;
+			world.physics.QueryAABB(new QueryCallback() {
+				@Override
+				public boolean reportFixture(Fixture fixture) {
+					if (fixture.getUserData() != null && (fixture.getUserData() instanceof Reference)) {
+						Reference ref = ((Reference) fixture.getUserData());
+						if (ref.getType() == Reference.Type.SHEEP) {
+							world.showFlock = ref.getSheep();
+							return false;
+						}
+					}
+					return true;
+				}
+			}, world.debugCoords.x, world.debugCoords.y, world.debugCoords.x, world.debugCoords.y);
+		}
 
-        if (world.showFlock != null) {
-            world.debug("flock size =" + world.showFlock.getFlock().size());
+		if (world.showFlock != null) {
+			world.debug("flock size =" + world.showFlock.getFlock().size());
 
-            debugRenderer.begin(ShapeType.Filled);
-            debugRenderer.setColor(new Color(1, 0.3f, 0.3f, 0.0f));
-            debugRenderer.circle(world.showFlock.getPosition().x, world.showFlock.getPosition().y, 1.5f);
-            debugRenderer.setColor(new Color(0.2f, 0.2f, 1f, 0.0f));
-            for (Sheep inFlock : world.showFlock.getFlock()) {
-                debugRenderer.circle(inFlock.getPosition().x, inFlock.getPosition().y, 1f);
-            }
-            debugRenderer.end();
+			debugRenderer.begin(ShapeType.Filled);
+			debugRenderer.setColor(new Color(1, 0.3f, 0.3f, 0.0f));
+			debugRenderer.circle(world.showFlock.getPosition().x, world.showFlock.getPosition().y, 1.5f);
+			debugRenderer.setColor(new Color(0.2f, 0.2f, 1f, 0.0f));
+			for (Sheep inFlock : world.showFlock.getFlock()) {
+				debugRenderer.circle(inFlock.getPosition().x, inFlock.getPosition().y, 1f);
+			}
+			debugRenderer.end();
 
-            debugRenderer.begin(ShapeType.Line);
-            debugRenderer.setColor(new Color(0.2f, 0.2f, 1f, 0.0f));
-            debugRenderer.circle(world.showFlock.getPosition().x, world.showFlock.getPosition().y, Sheep.FLOCK_RADIUS);
-            debugRenderer.end();
-        }
+			debugRenderer.begin(ShapeType.Line);
+			debugRenderer.setColor(new Color(0.2f, 0.2f, 1f, 0.0f));
+			debugRenderer.circle(world.showFlock.getPosition().x, world.showFlock.getPosition().y, Sheep.FLOCK_RADIUS);
+			debugRenderer.end();
+		}
 
-    }
+	}
 
-    private void drawDebugSheep(Sheep sheep) {
-        final float radius = Sheep.RADIUS;
-        debugRenderer.circle(sheep.getPosition().x, sheep.getPosition().y, radius, 12);
-        sheep.getOrientation().nor().scl(radius);
+	private void drawDebugSheep(Sheep sheep) {
+		final float radius = Sheep.RADIUS;
+		debugRenderer.circle(sheep.getPosition().x, sheep.getPosition().y, radius, 12);
+		sheep.getOrientation().nor().scl(radius);
 //        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getOrientation()));
 //        debugRenderer.line(sheep.getPosition(), new Vector2(sheep.getPosition()).add(sheep.getDesiredMovement()));
-    }
+	}
 
-    private void drawDebugText() {
-        Gdx.gl.glViewport(0, 0, width, height);
+	private void drawDebugText() {
+		Gdx.gl.glViewport(0, 0, width, height);
 
-        debugTextRenderer.setProjectionMatrix(debugCam.combined);
-        debugTextRenderer.begin();
-        debugTextRenderer.draw(lammas, 90, 20, 10, 10);
+		debugTextRenderer.setProjectionMatrix(debugCam.combined);
+		debugTextRenderer.begin();
+		debugTextRenderer.draw(lammas, 90, 20, 10, 10);
 
-        float lineHeight = debugFont.getLineHeight();
-        float y = DEBUG_CAM_HEIGHT - 12;
-        for (String line : world.getDebug()) {
-            debugFont.draw(debugTextRenderer, line, 12, y);
-            y -= lineHeight;
-        }
-        world.clearDebug();
-        debugTextRenderer.end();
-    }
+		float lineHeight = debugFont.getLineHeight();
+		float y = DEBUG_CAM_HEIGHT - 12;
+		for (String line : world.getDebug()) {
+			debugFont.draw(debugTextRenderer, line, 12, y);
+			y -= lineHeight;
+		}
+		world.clearDebug();
+		debugTextRenderer.end();
+	}
 
-    public Vector2 screenToTile(int sx, int sy, Vector2 target) {
-        Vector3 tc = cam.unproject(new Vector3(sx, sy, 0), 0, 0, fieldWidth, fieldHeight);
-        tc.x = (float) Math.floor(tc.x);
-        tc.y = (float) Math.floor(tc.y);
-        target.set(tc.x, tc.y);
-        return target;
-    }
+	public Vector2 screenToTile(int sx, int sy, Vector2 target) {
+		Vector3 tc = cam.unproject(new Vector3(sx, sy, 0), 0, 0, fieldWidth, fieldHeight);
+		tc.x = (float) Math.floor(tc.x);
+		tc.y = (float) Math.floor(tc.y);
+		target.set(tc.x, tc.y);
+		return target;
+	}
 
 }
