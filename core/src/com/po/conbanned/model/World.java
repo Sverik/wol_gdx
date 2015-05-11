@@ -6,19 +6,16 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.ContactFilter;
-import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.ContactListener;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.po.conbanned.model.util.ContactFilter;
+import com.po.conbanned.model.util.ContactListener;
 import com.po.conbanned.track.ObstacleDef;
 import com.po.conbanned.track.PlacedPiece;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class World {
 
@@ -39,6 +36,7 @@ public class World {
 	LinkedList<Vector3> dogTrace = new LinkedList<Vector3>();
 	LinkedList<Sheep> sheep = new LinkedList<Sheep>();
 	LinkedList<Obstacle> obstacles = new LinkedList<Obstacle>();
+	LinkedList<Wireable> wired = new LinkedList<Wireable>();
 
 	public com.badlogic.gdx.physics.box2d.World physics;
 
@@ -74,6 +72,10 @@ public class World {
 		return obstacles;
 	}
 
+	public LinkedList<Wireable> getWired() {
+		return wired;
+	}
+
 	/**
 	 * Grid coordinates.
 	 *
@@ -91,10 +93,6 @@ public class World {
 		this.hoverState = hoverState;
 	}
 
-	private interface FlockAction {
-		public void action(Sheep sheepA, Sheep sheepB, boolean touching);
-	}
-
 	public void debug(String line) {
 		debugText.add(line);
 	}
@@ -110,81 +108,9 @@ public class World {
 	private void createDemoWorld() {
 		physics = new com.badlogic.gdx.physics.box2d.World(new Vector2(0, 0), true);
 
-		physics.setContactFilter(new ContactFilter() {
-			@Override
-			public boolean shouldCollide(Fixture fixtureA, Fixture fixtureB) {
-				Reference refA = (Reference) fixtureA.getUserData();
-				Reference refB = (Reference) fixtureB.getUserData();
-				// lammas ja koer ei kollideeru
-				if (refA.getType() == Reference.Type.DOG && refB.getType() == Reference.Type.SHEEP) {
-					return false;
-				}
-				if (refA.getType() == Reference.Type.SHEEP && refB.getType() == Reference.Type.DOG) {
-					return false;
-				}
-				return true;
-			}
-		});
+		physics.setContactFilter(new ContactFilter());
 
-		physics.setContactListener(new ContactListener() {
-			private FlockAction begin = new FlockAction() {
-				@Override
-				public void action(Sheep sheepA, Sheep sheepB, boolean isTouching) {
-					if (isTouching) {
-						sheepA.getFlock().add(sheepB);
-						sheepB.getFlock().add(sheepA);
-					}
-				}
-			};
-
-			private FlockAction end = new FlockAction() {
-				@Override
-				public void action(Sheep sheepA, Sheep sheepB, boolean isTouching) {
-					if (!isTouching) {
-						sheepA.getFlock().remove(sheepB);
-						sheepB.getFlock().remove(sheepA);
-					}
-				}
-			};
-
-			private void event(Contact contact, FlockAction action) {
-				Reference refA = (Reference) contact.getFixtureA().getUserData();
-				Reference refB = (Reference) contact.getFixtureB().getUserData();
-				if (flockingEvent(refA, refB)) {
-					action.action(refA.getSheep(), refB.getSheep(), contact.isTouching());
-				}
-			}
-
-			private boolean flockingEvent(Reference refA, Reference refB) {
-				if (refA.getType() == Reference.Type.SHEEP && refB.getType() == Reference.Type.FLOCK) {
-					return true;
-				}
-				if (refB.getType() == Reference.Type.SHEEP && refA.getType() == Reference.Type.FLOCK) {
-					return true;
-				}
-				return false;
-			}
-
-			@Override
-			public void beginContact(Contact contact) {
-				event(contact, begin);
-			}
-
-			@Override
-			public void endContact(Contact contact) {
-				event(contact, end);
-			}
-
-			@Override
-			public void preSolve(Contact contact, Manifold oldManifold) {
-
-			}
-
-			@Override
-			public void postSolve(Contact contact, ContactImpulse impulse) {
-
-			}
-		});
+		physics.setContactListener(new ContactListener());
 
 		dog = new Dog();
 		dog.getOrientation().set(2, 1);
@@ -241,9 +167,12 @@ public class World {
 
 	public void addObstacle(Obstacle obstacle) {
 		obstacles.add(obstacle);
+		if (obstacle instanceof Wireable) {
+			wired.add((Wireable) obstacle);
+		}
 		Body body = physics.createBody(obstacle.getBodyDef());
 		obstacle.setBody(body);
-		obstacle.getBody().createFixture(obstacle.getFixtureDef()).setUserData(Reference.obstacle(body));
+		obstacle.getBody().createFixture(obstacle.getFixtureDef()).setUserData(Reference.obstacle(obstacle));
 //        obstacle.getShape().dispose();
 	}
 
@@ -254,17 +183,27 @@ public class World {
 		return new ObstacleDef(shape, rect.getCenter(new Vector2()));
 	}
 
+	private AtomicInteger hackTriggerSequence = new AtomicInteger(0);
+
 	public Obstacle createObstacle(ObstacleDef obstacleDef, float tripOffset) {
-		Obstacle obstacle = new Obstacle();
+		Obstacle obstacle;
+		if (obstacleDef.type == Obstacle.Type.TRIGGER) {
+			obstacle = new Trigger(Integer.toString(hackTriggerSequence.incrementAndGet()));
+		} else {
+			obstacle = new Obstacle();
+		}
 
 		obstacle.setShape(obstacleDef.shape);
 		BodyDef bodyDef = new BodyDef();
-		bodyDef.type = BodyDef.BodyType.StaticBody;
+		bodyDef.type = obstacleDef.type == Obstacle.Type.FIXED ? BodyDef.BodyType.StaticBody : BodyDef.BodyType.KinematicBody;
 		bodyDef.position.set(new Vector2(obstacleDef.center).add(0, tripOffset));
 		obstacle.setBodyDef(bodyDef);
 
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = obstacleDef.shape;
+		if (obstacleDef.type == Obstacle.Type.TRIGGER) {
+			fixtureDef.isSensor = true;
+		}
 		obstacle.setFixtureDef(fixtureDef);
 
 		return obstacle;

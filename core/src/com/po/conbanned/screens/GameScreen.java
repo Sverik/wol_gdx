@@ -8,6 +8,7 @@ import com.po.conbanned.controller.DogController;
 import com.po.conbanned.controller.HoverController;
 import com.po.conbanned.controller.MapController;
 import com.po.conbanned.controller.SheepController;
+import com.po.conbanned.controller.WireController;
 import com.po.conbanned.model.World;
 import com.po.conbanned.view.WorldRenderer;
 
@@ -16,6 +17,7 @@ public class GameScreen implements Screen, InputProcessor {
 	private ConBanned game;
 	private World world;
 	private WorldRenderer renderer;
+	private WireController wireController;
 	private DogController dogController;
 	private SheepController sheepController;
 	private HoverController hoverController;
@@ -31,6 +33,7 @@ public class GameScreen implements Screen, InputProcessor {
 	public void show() {
 		world = new World();
 		renderer = new WorldRenderer(world);
+		wireController = new WireController(world);
 		dogController = new DogController(world);
 		sheepController = new SheepController(world);
 		hoverController = new HoverController(world, renderer);
@@ -41,6 +44,7 @@ public class GameScreen implements Screen, InputProcessor {
 	@Override
 	public void render(float delta) {
 		mapController.update(delta);
+		wireController.update(delta);
 		dogController.update(delta);
 		sheepController.update(delta);
 		world.physics.step(delta, 6, 2);

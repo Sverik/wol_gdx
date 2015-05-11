@@ -3,6 +3,7 @@ package com.po.conbanned.track;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.po.conbanned.model.Obstacle;
 import com.po.conbanned.model.World;
 
 public class Funnel extends TrackPiece {
@@ -15,6 +16,12 @@ public class Funnel extends TrackPiece {
 
 			add(new ObstacleDef(shape, rect.getCenter(new Vector2())));
 		}
+
+		Rectangle rect = new Rectangle(World.GRID_WIDTH / 2 - 2, 8, 4, 4);
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2, new Vector2(-2, 0), 0);
+		ObstacleDef trigger = new ObstacleDef(Obstacle.Type.TRIGGER, shape, rect.getCenter(new Vector2()));
+		add(trigger);
 	}
 
 	@Override

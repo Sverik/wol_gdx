@@ -6,10 +6,30 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Shape;
 
 public class Obstacle {
+	public enum Type {
+		FIXED,
+		MOVING,
+		TRIGGER,
+		;
+	}
+
+	private final Type type;
 	private Body body;
 	private Shape shape;
 	private BodyDef bodyDef;
 	private FixtureDef fixtureDef;
+
+	public Obstacle() {
+		this(Type.FIXED);
+	}
+
+	protected Obstacle(Type type) {
+		this.type = type;
+	}
+
+	public Type getType() {
+		return type;
+	}
 
 	public void setBody(Body body) {
 		this.body = body;
