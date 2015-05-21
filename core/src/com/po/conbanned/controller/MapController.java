@@ -42,7 +42,7 @@ public class MapController {
 			if (Math.random() < 0.2) {
 				selected = pieces[((int) (Math.floor(Math.random() * (pieces.length - 1)) + 1))];
 			}
-            selected = pieces[2];
+//            selected = pieces[2];
 			addPiece(selected);
 		}
 

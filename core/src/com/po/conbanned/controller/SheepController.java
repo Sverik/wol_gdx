@@ -9,8 +9,8 @@ import com.po.conbanned.model.World;
 import java.util.Iterator;
 
 public class SheepController {
-	private static final float TRACE_EFFECT_MAX_DISTANCE = 25f;
-	private static final float TRACE_EFFECT = 20f;
+	private static final float TRACE_EFFECT_WIDTH_2 = - (float) Math.pow(20, 2);
+	private static final float TRACE_EFFECT = 10f;
 	private static final float FLOCK_CENTER_EFFECT = 1f;
 	private static final float FLOCK_ALIGNMENT_EFFECT = 1f;
 	private static final float DOG_EFFECT_NEGLIGIBLE_THRESHOLD_2 = 0.0001f;
@@ -88,11 +88,8 @@ public class SheepController {
 	}
 
 	private void addScareEffect(float x, float y, float magnitude, Vector2 sheepPos, Vector2 result) {
-		float distanceFromTrace = sheepPos.dst(x, y);
-		if (distanceFromTrace > TRACE_EFFECT_MAX_DISTANCE) {
-			return;
-		}
-		Vector2 traceEffect = new Vector2(sheepPos).sub(x, y).nor().scl(distanceFromTrace / TRACE_EFFECT_MAX_DISTANCE * magnitude * TRACE_EFFECT);
+		float distanceFromTrace_2 = sheepPos.dst2(x, y);
+		Vector2 traceEffect = new Vector2(sheepPos).sub(x, y).nor().scl(magnitude * TRACE_EFFECT * (float) Math.exp( distanceFromTrace_2 / TRACE_EFFECT_WIDTH_2 ));
 		result.add(traceEffect);
 	}
 

@@ -4,7 +4,7 @@ import com.po.conbanned.model.World;
 import com.po.conbanned.view.WorldRenderer;
 
 public class HoverController {
-	private static final int POINTER_TARGET_DIFF = 100;
+	private static final int POINTER_TARGET_DIFF = 0;
 
 	World world;
 	WorldRenderer worldRenderer;
