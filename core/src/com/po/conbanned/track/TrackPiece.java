@@ -5,7 +5,6 @@ import com.po.conbanned.model.World;
 import java.util.ArrayList;
 
 public abstract class TrackPiece {
-
 	private ArrayList<ObstacleDef> obstacleDefs = new ArrayList<ObstacleDef>();
 
 	protected TrackPiece(World world) {

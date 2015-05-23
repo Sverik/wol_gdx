@@ -17,10 +17,18 @@ public class Funnel extends TrackPiece {
 			add(new ObstacleDef(shape, rect.getCenter(new Vector2())));
 		}
 
-		Rectangle rect = new Rectangle(World.GRID_WIDTH / 2 - 2, 8, 4, 4);
+		// uks
+		Rectangle rect = new Rectangle(World.GRID_WIDTH / 2 - World.GRID_WIDTH / 6, 33, World.GRID_WIDTH / 3, 4);
 		PolygonShape shape = new PolygonShape();
 		shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2, new Vector2(-2, 0), 0);
-		ObstacleDef trigger = new ObstacleDef(Obstacle.Type.TRIGGER, shape, rect.getCenter(new Vector2()));
+		ObstacleDef door = new ObstacleDef(Obstacle.Type.MOVING, shape, rect.getCenter(new Vector2()), new Vector2(-rect.width, 0f), null);
+		add(door);
+
+		// trigger
+		rect = new Rectangle(World.GRID_WIDTH / 2 - 2, 8, 4, 4);
+		shape = new PolygonShape();
+		shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2, new Vector2(-2, 0), 0);
+		ObstacleDef trigger = new ObstacleDef(Obstacle.Type.TRIGGER, shape, rect.getCenter(new Vector2()), null, door.defId);
 		add(trigger);
 	}
 

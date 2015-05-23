@@ -134,8 +134,6 @@ public class World {
 			addSheep((float) Math.random() * GRID_WIDTH, (float) Math.random() * GRID_HEIGHT);
 		}
 
-		addObstacle(createObstacle(createRectangularAAObstacle(0, 0, 2, GRID_HEIGHT), 0f));
-
 	}
 
 	private void addSheep(float gridX, float gridY) {
@@ -183,20 +181,22 @@ public class World {
 		return new ObstacleDef(shape, rect.getCenter(new Vector2()));
 	}
 
-	private AtomicInteger hackTriggerSequence = new AtomicInteger(0);
-
-	public Obstacle createObstacle(ObstacleDef obstacleDef, float tripOffset) {
+	public Obstacle createObstacle(String placedPieceId, ObstacleDef obstacleDef, float tripOffset) {
 		Obstacle obstacle;
 		if (obstacleDef.type == Obstacle.Type.TRIGGER) {
-			obstacle = new Trigger(Integer.toString(hackTriggerSequence.incrementAndGet()));
+			obstacle = new Trigger(placedPieceId, obstacleDef.defId, obstacleDef.outputDefId);
+		} else if (obstacleDef.type == Obstacle.Type.MOVING) {
+			Vector2 pos0 = new Vector2(0, tripOffset).add(obstacleDef.center);
+			Vector2 pos1 = new Vector2(pos0).add(obstacleDef.pos1Offset);
+			obstacle = new Mover(placedPieceId, obstacleDef.defId, pos0, pos1);
 		} else {
-			obstacle = new Obstacle();
+			obstacle = new Obstacle(placedPieceId, obstacleDef.defId);
 		}
 
 		obstacle.setShape(obstacleDef.shape);
 		BodyDef bodyDef = new BodyDef();
-		bodyDef.type = obstacleDef.type == Obstacle.Type.FIXED ? BodyDef.BodyType.StaticBody : BodyDef.BodyType.KinematicBody;
-		bodyDef.position.set(new Vector2(obstacleDef.center).add(0, tripOffset));
+		bodyDef.type = obstacleDef.type == Obstacle.Type.MOVING ? BodyDef.BodyType.KinematicBody : BodyDef.BodyType.StaticBody;
+		bodyDef.position.set(new Vector2(0, tripOffset).add(obstacleDef.center));
 		obstacle.setBodyDef(bodyDef);
 
 		FixtureDef fixtureDef = new FixtureDef();

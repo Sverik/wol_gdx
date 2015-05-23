@@ -13,17 +13,21 @@ public class Obstacle {
 		;
 	}
 
+	public final String trackId;
+	public final String defId;
 	private final Type type;
 	private Body body;
 	private Shape shape;
 	private BodyDef bodyDef;
 	private FixtureDef fixtureDef;
 
-	public Obstacle() {
-		this(Type.FIXED);
+	public Obstacle(String trackId, String defId) {
+		this(trackId, defId, Type.FIXED);
 	}
 
-	protected Obstacle(Type type) {
+	protected Obstacle(String trackId, String defId, Type type) {
+		this.trackId = trackId;
+		this.defId = defId;
 		this.type = type;
 	}
 
@@ -61,5 +65,9 @@ public class Obstacle {
 
 	public void setBodyDef(BodyDef bodyDef) {
 		this.bodyDef = bodyDef;
+	}
+
+	public String toIdString() {
+		return trackId + "-" + defId;
 	}
 }
