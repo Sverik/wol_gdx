@@ -43,6 +43,7 @@ public class WorldRenderer {
 	ShapeRenderer debugRenderer = new ShapeRenderer();
 	SpriteBatch debugTextRenderer = new SpriteBatch();
 	BitmapFont debugFont;
+	GeometryRenderer geometryRenderer;
 
 	/**
 	 * Textures *
@@ -77,6 +78,7 @@ public class WorldRenderer {
 	}
 
 	public WorldRenderer(World world) {
+		this.geometryRenderer = new GeometryRenderer(world);
 		this.world = world;
 		this.cam = new OrthographicCamera(World.GRID_WIDTH, World.GRID_HEIGHT);
 		this.cam.position.set(World.GRID_WIDTH / 2f, World.GRID_HEIGHT / 2f, 0);
@@ -112,18 +114,21 @@ public class WorldRenderer {
 
 		spriteBatch.setProjectionMatrix(cam.combined);
 		spriteBatch.begin();
-//		drawSheep();
+		drawSheep();
 		spriteBatch.end();
 
 		drawDebug();
+
 	}
 
 	private void drawSheep() {
-		Color color = new Color(1f, 1f, 1f, 1f);
+		Color color = new Color(0f, 0f, 0f, 1f);
+		float colorStep = 1f / world.getSheep().size();
 		for (Sheep s : world.getSheep()) {
 			spriteBatch.setColor(color);
 			spriteBatch.draw(lammas, s.getPosition().x - Sheep.RADIUS, s.getPosition().y - Sheep.RADIUS, Sheep.RADIUS, Sheep.RADIUS, Sheep.RADIUS * 2, Sheep.RADIUS * 2, 1,
 					1, s.getOrientation().angle(), 0, 0, lammas.getWidth(), lammas.getHeight(), false, false);
+			color.add(colorStep, colorStep, colorStep, 0);
 		}
 		color = new Color(1f, 1f, 1f, 1f);
 		spriteBatch.setColor(color);
@@ -131,6 +136,7 @@ public class WorldRenderer {
 
 	private void drawDebug() {
 		debugRenderer.setProjectionMatrix(cam.combined);
+		geometryRenderer.setProjectionMatrix(cam.combined);
 
 		// Trace
 /**/
@@ -151,7 +157,7 @@ public class WorldRenderer {
 		debugRenderer.end();
 
 		// Obstacles
-		debugRenderer.begin(ShapeType.Line);
+		debugRenderer.begin(ShapeType.Filled);
 		debugRenderer.setColor(new Color(0.7f, 0.7f, 0.7f, 1));
 		for (Obstacle obstacle : world.getObstacles()) {
 			Vector2 pos = obstacle.getBody().getPosition();
@@ -179,13 +185,20 @@ public class WorldRenderer {
 
 		// Dog
 		Dog dog = world.getDog();
-		float radius = Dog.RADIUS;
-		debugRenderer.begin(ShapeType.Line);
-		debugRenderer.setColor(new Color(1, 0, 0, 1));
-		debugRenderer.circle(dog.getPosition().x, dog.getPosition().y, radius, 12);
+		float radius = Dog.RADIUS * 20;
+		geometryRenderer.begin(ShapeType.Line);
+		geometryRenderer.setColor(1, 0, 0, 1);
+		geometryRenderer.arc(dog.getPosition().x, dog.getPosition().y, radius, 20f, 80f, 3);
+//		debugRenderer.po
+//		debugRenderer.circle(dog.getPosition().x, dog.getPosition().y, radius, 12);
 		dog.getOrientation().nor().scl(radius);
-		debugRenderer.line(dog.getPosition(), new Vector2(dog.getPosition()).add(dog.getOrientation()));
-		debugRenderer.end();
+//		debugRenderer.line(dog.getPosition(), new Vector2(dog.getPosition()).add(dog.getOrientation()));
+		geometryRenderer.end();
+
+		geometryRenderer.begin(ShapeType.Line);
+		geometryRenderer.setColor(1, 1, 0, 1);
+		geometryRenderer.arc(dog.getPosition().x, dog.getPosition().y, radius + 3, radius + 10, 20f, 80f, 5);
+		geometryRenderer.end();
 
 		// Sheep flock
 		debugFlock();
@@ -212,8 +225,6 @@ public class WorldRenderer {
 		}
 
 		if (world.showFlock != null) {
-			world.debug("flock size =" + world.showFlock.getFlock().size());
-
 			debugRenderer.begin(ShapeType.Filled);
 			debugRenderer.setColor(new Color(1, 0.3f, 0.3f, 0.0f));
 			debugRenderer.circle(world.showFlock.getPosition().x, world.showFlock.getPosition().y, 1.5f);

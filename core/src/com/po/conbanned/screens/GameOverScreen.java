@@ -6,10 +6,10 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.po.conbanned.ConBanned;
+import com.po.conbanned.TheBigWheel;
 
 public class GameOverScreen implements Screen, InputProcessor {
-	ConBanned game;
+	TheBigWheel game;
 
 	private int width, height;
 	private SpriteBatch batch;
@@ -18,7 +18,7 @@ public class GameOverScreen implements Screen, InputProcessor {
 	private float fontScale = -1f;
 	private int killCount;
 
-	public GameOverScreen(ConBanned game, int killCount) {
+	public GameOverScreen(TheBigWheel game, int killCount) {
 		this.game = game;
 		this.killCount = killCount;
 		batch = new SpriteBatch();

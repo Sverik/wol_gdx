@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.po.conbanned.ConBanned;
+import com.po.conbanned.TheBigWheel;
 
 public class ConBannedActivity extends AndroidApplication {
 	@Override
@@ -15,6 +15,6 @@ public class ConBannedActivity extends AndroidApplication {
 		config.useCompass = false;
 		config.useWakelock = true;
 		config.useGLSurfaceView20API18 = true;
-		initialize(new ConBanned(), config);
+		initialize(new TheBigWheel(), config);
 	}
 }

@@ -18,11 +18,9 @@ public class WireController {
 		for (Wireable wire : world.getWired()) {
 			if (wire instanceof Trigger) {
 				Trigger trigger = (Trigger) wire;
-				world.debug("trigger " + trigger.toIdString() + " " + trigger.sheepCount);
 				trigger.getOutput().setActive(trigger.isActive());
 			} else if (wire instanceof Mover) {
 				Mover mover = (Mover) wire;
-				world.debug("mover " + mover.toIdString() + " active: " + mover.isActive());
 				move(delta, mover, mover.isActive() ? mover.pos1 : mover.pos0, mover.isActive() ? mover.getSpeed01() : mover.getSpeed10());
 			}
 		}
@@ -35,13 +33,11 @@ public class WireController {
 				return "[" + Math.round(x * 10f) / 10f + ":" + Math.round(y * 10f) / 10f + "]";
 			}
 		}.sub(mover.getBody().getPosition());
-		world.debug("mover " + mover.toIdString() + " direction: " + movement);
 		if (movement.len2() > 0.01f) {
 			movement.nor().scl(speed * delta);
 		} else {
 			movement.setZero();
 		}
 		mover.getBody().setLinearVelocity(movement);
-		world.debug("mover " + mover.toIdString() + " movement: " + movement);
 	}
 }

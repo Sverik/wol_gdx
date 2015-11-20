@@ -6,10 +6,10 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.po.conbanned.ConBanned;
+import com.po.conbanned.TheBigWheel;
 
 public class GameStartScreen implements Screen, InputProcessor {
-	ConBanned game;
+	TheBigWheel game;
 
 	private int width, height;
 	private SpriteBatch batch;
@@ -17,7 +17,7 @@ public class GameStartScreen implements Screen, InputProcessor {
 	private BitmapFont fontToContinue;
 	private float fontScale = -1f;
 
-	public GameStartScreen(ConBanned game) {
+	public GameStartScreen(TheBigWheel game) {
 		this.game = game;
 		batch = new SpriteBatch();
 		fontNormal = new BitmapFont();

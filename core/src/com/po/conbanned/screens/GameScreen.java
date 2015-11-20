@@ -3,7 +3,7 @@ package com.po.conbanned.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
-import com.po.conbanned.ConBanned;
+import com.po.conbanned.TheBigWheel;
 import com.po.conbanned.controller.DogController;
 import com.po.conbanned.controller.HoverController;
 import com.po.conbanned.controller.MapController;
@@ -14,7 +14,7 @@ import com.po.conbanned.view.WorldRenderer;
 
 public class GameScreen implements Screen, InputProcessor {
 
-	private ConBanned game;
+	private TheBigWheel game;
 	private World world;
 	private WorldRenderer renderer;
 	private WireController wireController;
@@ -25,7 +25,7 @@ public class GameScreen implements Screen, InputProcessor {
 
 	private int width, height;
 
-	public GameScreen(ConBanned conBanned) {
+	public GameScreen(TheBigWheel conBanned) {
 		this.game = conBanned;
 	}
 

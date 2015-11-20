@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MapController {
-	private static final float MAP_SCROLL_SPEED = 3f;
+	private static final float MAP_SCROLL_SPEED = 0f;
 
 	private static final AtomicInteger placedPiecekIdSeq = new AtomicInteger();
 
@@ -38,10 +38,6 @@ public class MapController {
 
 	public void update(float delta) {
 		world.trip += delta * MAP_SCROLL_SPEED;
-
-		world.debug("trip = " + world.trip);
-		world.debug("track pieces = " + world.trackPieces.size());
-		world.debug("sheep count = " + world.getSheep().size());
 
 		if (world.trip + World.GRID_HEIGHT - 5f > world.trackPieces.getLast().tripOffset + world.trackPieces.getLast().track.getLength()) {
 			TrackPiece selected = pieces[0];
