@@ -3,16 +3,29 @@ package com.po.conbanned.view;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer20;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.po.conbanned.model.World;
 import com.sun.media.jfxmediaimpl.MediaDisposer;
-import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
-public class GeometryRenderer implements MediaDisposer.Disposable {
+public class FatArcRenderer implements MediaDisposer.Disposable {
+
+	public enum ShapeType {
+		Point(GL20.GL_POINTS), Line(GL20.GL_LINE_STRIP), Filled(GL20.GL_TRIANGLE_STRIP);
+
+		private final int glType;
+
+		ShapeType (int glType) {
+			this.glType = glType;
+		}
+
+		public int getGlType () {
+			return glType;
+		}
+	}
 
 	protected static final int X = 0;
 	protected static final int Y = 1;
@@ -27,12 +40,12 @@ public class GeometryRenderer implements MediaDisposer.Disposable {
 
 	private World world;
 
-	public GeometryRenderer(World world) {
+	public FatArcRenderer(World world) {
 		this(5000);
 		this.world = world;
 	}
 
-	public GeometryRenderer(int maxVertices) {
+	public FatArcRenderer(int maxVertices) {
 		renderer = new ImmediateModeRenderer20(maxVertices, false, true, 0);
 		projectionMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 	}
@@ -111,7 +124,7 @@ public class GeometryRenderer implements MediaDisposer.Disposable {
 		};
 
 		if (shapeType == ShapeType.Line) {
-			check(ShapeType.Line, ShapeType.Filled, segments * 2 + 2);
+			check(ShapeType.Line, ShapeType.Filled, segments * 4 + 2);
 
 			// first wall
 			renderer.color(color);
@@ -123,22 +136,14 @@ public class GeometryRenderer implements MediaDisposer.Disposable {
 				nextInArc(ci[0], ci[1], sin, cos);
 				// inner arc
 				renderer.color(color);
-				renderer.vertex(x + ci[0][X], y + ci[0][Y], 0);
-				renderer.color(color);
 				renderer.vertex(x + ci[1][X], y + ci[1][Y], 0);
 				// diagonal
-				renderer.color(color);
-				renderer.vertex(x + ci[1][X], y + ci[1][Y], 0);
 				renderer.color(color);
 				renderer.vertex(x + co[0][X], y + co[0][Y], 0);
 				// outer arc
 				renderer.color(color);
-				renderer.vertex(x + co[0][X], y + co[0][Y], 0);
-				renderer.color(color);
 				renderer.vertex(x + co[1][X], y + co[1][Y], 0);
 				// wall
-				renderer.color(color);
-				renderer.vertex(x + co[1][X], y + co[1][Y], 0);
 				renderer.color(color);
 				renderer.vertex(x + ci[1][X], y + ci[1][Y], 0);
 
@@ -150,18 +155,27 @@ public class GeometryRenderer implements MediaDisposer.Disposable {
 //			renderer.color(color);
 //			renderer.vertex(x + ci[0][X], y + ci[0][Y], 0);
 		} else {
-			check(ShapeType.Line, ShapeType.Filled, segments * 3 + 3);
+			check(ShapeType.Line, ShapeType.Filled, segments * 2 + 2);
 
+			// first wall
+			renderer.color(color);
+			renderer.vertex(x + ci[0][X], y + ci[0][Y], 0);
+			renderer.color(color);
+			renderer.vertex(x + co[0][X], y + co[0][Y], 0);
 			for (int i = 0; i < segments; i++) {
+				nextInArc(co[0], co[1], sin, cos);
+				nextInArc(ci[0], ci[1], sin, cos);
+				// diagonal
 				renderer.color(color);
-				renderer.vertex(x, y, 0);
+				renderer.vertex(x + ci[1][X], y + ci[1][Y], 0);
+				// wall
 				renderer.color(color);
-//				renderer.vertex(x + cx, y + cy, 0);
-//				float temp = cx;
-//				cx = cos * cx - sin * cy;
-//				cy = sin * temp + cos * cy;
-				renderer.color(color);
-//				renderer.vertex(x + cx, y + cy, 0);
+				renderer.vertex(x + co[1][X], y + co[1][Y], 0);
+
+				ci[0][X] = ci[1][X];
+				ci[0][Y] = ci[1][Y];
+				co[0][X] = co[1][X];
+				co[0][Y] = co[1][Y];
 			}
 			renderer.color(color);
 			renderer.vertex(x, y, 0);

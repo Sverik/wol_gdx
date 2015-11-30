@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Fixture;
@@ -21,6 +20,8 @@ import com.po.conbanned.model.Obstacle;
 import com.po.conbanned.model.Reference;
 import com.po.conbanned.model.Sheep;
 import com.po.conbanned.model.World;
+
+import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
 public class WorldRenderer {
 
@@ -43,7 +44,7 @@ public class WorldRenderer {
 	ShapeRenderer debugRenderer = new ShapeRenderer();
 	SpriteBatch debugTextRenderer = new SpriteBatch();
 	BitmapFont debugFont;
-	GeometryRenderer geometryRenderer;
+	FatArcRenderer fatArcRenderer;
 
 	/**
 	 * Textures *
@@ -78,7 +79,7 @@ public class WorldRenderer {
 	}
 
 	public WorldRenderer(World world) {
-		this.geometryRenderer = new GeometryRenderer(world);
+		this.fatArcRenderer = new FatArcRenderer(world);
 		this.world = world;
 		this.cam = new OrthographicCamera(World.GRID_WIDTH, World.GRID_HEIGHT);
 		this.cam.position.set(World.GRID_WIDTH / 2f, World.GRID_HEIGHT / 2f, 0);
@@ -136,7 +137,7 @@ public class WorldRenderer {
 
 	private void drawDebug() {
 		debugRenderer.setProjectionMatrix(cam.combined);
-		geometryRenderer.setProjectionMatrix(cam.combined);
+		fatArcRenderer.setProjectionMatrix(cam.combined);
 
 		// Trace
 /**/
@@ -186,19 +187,19 @@ public class WorldRenderer {
 		// Dog
 		Dog dog = world.getDog();
 		float radius = Dog.RADIUS * 20;
-		geometryRenderer.begin(ShapeType.Line);
-		geometryRenderer.setColor(1, 0, 0, 1);
-		geometryRenderer.arc(dog.getPosition().x, dog.getPosition().y, radius, 20f, 80f, 3);
+		fatArcRenderer.begin(FatArcRenderer.ShapeType.Line);
+		fatArcRenderer.setColor(1, 0, 0, 1);
+		fatArcRenderer.arc(dog.getPosition().x, dog.getPosition().y, radius, 20f, 80f, 3);
 //		debugRenderer.po
 //		debugRenderer.circle(dog.getPosition().x, dog.getPosition().y, radius, 12);
 		dog.getOrientation().nor().scl(radius);
 //		debugRenderer.line(dog.getPosition(), new Vector2(dog.getPosition()).add(dog.getOrientation()));
-		geometryRenderer.end();
+		fatArcRenderer.end();
 
-		geometryRenderer.begin(ShapeType.Line);
-		geometryRenderer.setColor(1, 1, 0, 1);
-		geometryRenderer.arc(dog.getPosition().x, dog.getPosition().y, radius + 3, radius + 10, 20f, 80f, 5);
-		geometryRenderer.end();
+		fatArcRenderer.begin(FatArcRenderer.ShapeType.Filled);
+		fatArcRenderer.setColor(1, 1, 0, 1);
+		fatArcRenderer.arc(dog.getPosition().x, dog.getPosition().y, radius + 3, radius + 10, dog.getOrientation().angle(), 80f, 7);
+		fatArcRenderer.end();
 
 		// Sheep flock
 		debugFlock();
