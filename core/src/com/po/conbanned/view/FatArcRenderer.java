@@ -9,9 +9,9 @@ import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer20;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.po.conbanned.model.World;
-import com.sun.media.jfxmediaimpl.MediaDisposer;
+//import com.sun.media.jfxmediaimpl.MediaDisposer;
 
-public class FatArcRenderer implements MediaDisposer.Disposable {
+public class FatArcRenderer /* implements MediaDisposer.Disposable */ {
 
 	public enum ShapeType {
 		Point(GL20.GL_POINTS), Line(GL20.GL_LINE_STRIP), Filled(GL20.GL_TRIANGLE_STRIP);
@@ -252,8 +252,10 @@ public class FatArcRenderer implements MediaDisposer.Disposable {
 		renderer.vertex(x + cx, y + cy, 0);
 	}
 
+/*
 	@Override
 	public void dispose() {
 		renderer.dispose();
 	}
+*/
 }

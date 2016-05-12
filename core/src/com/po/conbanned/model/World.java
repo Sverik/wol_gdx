@@ -106,7 +106,7 @@ public class World {
 	}
 
 	private void createDemoWorld() {
-		physics = new com.badlogic.gdx.physics.box2d.World(new Vector2(0, 0), true);
+		physics = new com.badlogic.gdx.physics.box2d.World(new Vector2(0, -2), true);
 
 		physics.setContactFilter(new ContactFilter());
 
