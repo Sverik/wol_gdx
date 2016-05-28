@@ -220,6 +220,22 @@ public class WorldRenderer {
 		// Sheep flock
 		debugFlock();
 
+		// Sheep in polar coordinates
+		fatArcRenderer.begin(FatArcRenderer.ShapeType.Filled);
+		fatArcRenderer.setColor(0, 1, 1, 1);
+		for (Sheep sheep : world.getSheep()) {
+			drawPolarSheep(sheep);
+			break;
+		}
+		fatArcRenderer.end();
+
+		// Dog in polar coordinates
+		fatArcRenderer.begin(FatArcRenderer.ShapeType.Filled);
+		fatArcRenderer.setColor(0, 0.2f, 1, 1);
+		fatArcRenderer.arc(45, 73, dog.getPosition().y - 4, dog.getPosition().y, dog.getPosition().x - 2, 4, 2);
+		fatArcRenderer.end();
+
+
 		drawDebugText();
 	}
 
@@ -257,6 +273,10 @@ public class WorldRenderer {
 			debugRenderer.end();
 		}
 
+	}
+
+	private void drawPolarSheep(Sheep sheep) {
+		fatArcRenderer.arc(45, 73, sheep.getPosition().y - 4, sheep.getPosition().y, sheep.getPosition().x - 2, 4, 2);
 	}
 
 	private void drawDebugSheep(Sheep sheep) {
