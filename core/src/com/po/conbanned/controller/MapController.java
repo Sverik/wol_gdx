@@ -29,9 +29,9 @@ public class MapController {
 		this.world = world;
 		pieces = new TrackPiece[]{
 				new EmptyStrip(world),
-				new DiamondCenter(world),
-				new Funnel(world),
-				new RightSideBridge(world),
+//				new DiamondCenter(world),
+//				new Funnel(world),
+//				new RightSideBridge(world),
 		};
 		addPiece(pieces[0], 0f);
 	}
@@ -39,13 +39,8 @@ public class MapController {
 	public void update(float delta) {
 		world.trip += delta * MAP_SCROLL_SPEED;
 
-		if (world.trip + World.GRID_HEIGHT - 5f > world.trackPieces.getLast().tripOffset + world.trackPieces.getLast().track.getLength()) {
-			TrackPiece selected = pieces[0];
-			if (Math.random() < 0.2) {
-				selected = pieces[((int) (Math.floor(Math.random() * (pieces.length - 1)) + 1))];
-			}
-            selected = pieces[2];
-			addPiece(selected);
+		if (world.trackPieces.isEmpty()) {
+			addPiece(pieces[0]);
 		}
 
 		// TODO: miks alati ei eemaldata?

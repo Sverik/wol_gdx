@@ -174,11 +174,17 @@ public class World {
 //        obstacle.getShape().dispose();
 	}
 
-	public ObstacleDef createRectangularAAObstacle(float gx0, float gy0, float gx1, float gy1) {
-		Rectangle rect = new Rectangle(Math.min(gx0, gx1), Math.min(gy0, gy1), Math.abs(gx1 - gx0), Math.abs(gy1 - gy0));
+	public ObstacleDef createRectangularAAObstacle_old(float a0, float r0, float a1, float r1) {
+		return createRectangularAAObstacle(a0, a1, r0, r1);
+	}
+
+	public ObstacleDef createRectangularAAObstacle(float a0, float a1, float r0, float r1) {
+		float width_2 = (a1 - a0) / 2;
+		float height_2 = (r1 - r0) / 2;
+		Vector2 center = new Vector2(a0 + width_2, r0 + height_2);
 		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2, new Vector2(0, 0), 0f);
-		return new ObstacleDef(shape, rect.getCenter(new Vector2()));
+		shape.setAsBox(width_2, height_2, center, 0f);
+		return new ObstacleDef(shape, center);
 	}
 
 	public Obstacle createObstacle(String placedPieceId, ObstacleDef obstacleDef, float tripOffset) {

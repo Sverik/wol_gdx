@@ -168,11 +168,27 @@ public class WorldRenderer {
 				Vector2 vertex0 = new Vector2();
 				Vector2 vertex1 = new Vector2();
 				shape.getVertex(0, vertex0);
+				float a0 = Float.MAX_VALUE;
+				float a1 = Float.MIN_VALUE;
+				float r0 = Float.MAX_VALUE;
+				float r1 = Float.MIN_VALUE;
+				a0 = Math.min(a0, vertex0.x);
+				a1 = Math.max(a1, vertex0.x);
+				r0 = Math.min(r0, vertex0.y);
+				r1 = Math.max(r1, vertex0.y);
 				for (int i = 1; i < shape.getVertexCount() + 1; i++) {
+					a0 = Math.min(a0, vertex0.x);
+					a1 = Math.max(a1, vertex0.x);
+					r0 = Math.min(r0, vertex0.y);
+					r1 = Math.max(r1, vertex0.y);
 					shape.getVertex(i % shape.getVertexCount(), vertex1);
 					debugRenderer.line(vertex0.x + pos.x, vertex0.y + pos.y, vertex1.x + pos.x, vertex1.y + pos.y);
 					vertex0.set(vertex1);
 				}
+				fatArcRenderer.begin(FatArcRenderer.ShapeType.Filled);
+				fatArcRenderer.setColor(1, 0, 1, 1);
+				fatArcRenderer.arc(45, 73, r0, r1, a0, a1 - a0, 7);
+				fatArcRenderer.end();
 //                debugRenderer.rect(, 0, World.GRID_WIDTH / 2 - 1f, rect.height);
 			}
 		}

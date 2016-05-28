@@ -8,14 +8,14 @@ public abstract class TrackPiece {
 	private ArrayList<ObstacleDef> obstacleDefs = new ArrayList<ObstacleDef>();
 
 	protected TrackPiece(World world) {
-		add(world.createRectangularAAObstacle(0, 0, 2, getLength()));
-		add(world.createRectangularAAObstacle(World.GRID_WIDTH, getLength(), World.GRID_WIDTH - 2, 0));
+//		add(world.createRectangularAAObstacle(0, 45, 10, 50));
+		obstacleDefs.add(world.createRectangularAAObstacle(0, 80, 35, 50));
 	}
 
 	public abstract float getLength();
 
 	protected void add(ObstacleDef def) {
-		obstacleDefs.add(def);
+//		obstacleDefs.add(def);
 	}
 
 	public Iterable<ObstacleDef> getObstacleDefs() {
